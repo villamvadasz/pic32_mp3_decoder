@@ -1,0 +1,10 @@
+#ifndef _C_SERIAL_USART1_H_
+#define _C_SERIAL_USART1_H_
+
+#define RX_LEN_USART1 128
+#define TX_LEN_USART1 128
+
+#define RX_TRIS_USART1 TRISDbits.TRISD2
+#define TX_TRIS_USART1 TRISDbits.TRISD3
+
+#endif

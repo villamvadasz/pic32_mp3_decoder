@@ -1,0 +1,22 @@
+#ifndef _C_VS1053_H_
+#define _C_VS1053_H_
+
+#error You have included an example of c_vs1053.h
+
+#define VS1053_XRESET_TRIS 	TRISBbits.TRISB13
+#define VS1053_XRESET_PORT	PORTBbits.RB13
+#define VS1053_XRESET_LAT 	LATBbits.LATB13
+
+#define VS1053_XDCS_TRIS 	TRISDbits.TRISD11
+#define VS1053_XDCS_PORT	PORTDbits.RD11
+#define VS1053_XDCS_LAT 	LATDbits.LATD11
+
+#define VS1053_XCS_TRIS 	TRISDbits.TRISD8
+#define VS1053_XCS_PORT		PORTDbits.RD8
+#define VS1053_XCS_LAT 		LATDbits.LATD8
+
+#define VS1053_DREQ_TRIS 	TRISDbits.TRISD4
+#define VS1053_DREQ_PORT	PORTDbits.RD4
+#define VS1053_DREQ_LAT 	LATDbits.LATD4
+
+#endif
