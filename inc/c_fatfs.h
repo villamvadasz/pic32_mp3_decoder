@@ -4,7 +4,7 @@
 
     // Define the SPI frequency
 	#define SPI_FREQUENCY_SLOW		   400000
-    #define SPI_FREQUENCY			(20000000)
+    #define SPI_FREQUENCY			(10000000)
 	//#warning TODO change back to non debug values
 	//#define SPI_FREQUENCY_SLOW		 100000
     //#define SPI_FREQUENCY			(150000)
@@ -90,7 +90,7 @@
     #define MDD_WriteProtectState   MDD_SDSPI_WriteProtectState
     #define MDD_ReadSectorSize      MDD_SDSPI_ReadSectorSize
     #define MDD_ReadCapacity        MDD_SDSPI_ReadCapacity
-    #define MDD_FINAL_SPI_SPEED     2000000
+    //#define MDD_FINAL_SPI_SPEED     2000000
 
 #define FATFS_USE_SDCARD
 //#define FATFS_USE_SD4BITCARD

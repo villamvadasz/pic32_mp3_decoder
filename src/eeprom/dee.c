@@ -490,6 +490,7 @@ uint32 MassErasePage(uint8 page) {
 }
 
 uint32 DataEEWrite(uint32 data, uint32 addr, uint8 packOperation) {
+	uint8 tempPage = 0xFF;
 	uint8 currentPage = 0xFF;
 	uint8 nextPage = 0xFF;
 	uint8 activePages = 0;
@@ -518,7 +519,7 @@ uint32 DataEEWrite(uint32 data, uint32 addr, uint8 packOperation) {
 		SetPageCorruptStatus(1);
 		return (6);
 	}
-	//Do not write data if it did not change
+	//Do not write data it if did not change
 	if (packOperation == 0) {//Skip this check if nextPage write is used, reason is PackEE always tries to write the same data
 		uint32 dataRead = 0;
 		if ( (DataEERead(&dataRead, addr) != 0) && (dataEEFlags.val > 1) ) {
@@ -541,55 +542,35 @@ uint32 DataEEWrite(uint32 data, uint32 addr, uint8 packOperation) {
 	}
 
 	if (writeToNextPage == 0) {
-		uint32 retCode = 0;
-		uint32 data_written = 0;
-		uint32 crc_written = 0;
-		uint32 address_written = 0;
-		retCode = dee_page_write_element(currentPage, addrIndex, data, ~data, addr);
-		if (retCode & _NVMCON_LVDERR_MASK) {
-			SetLowVoltageError(1);
-			return (8);
-		}
-		else if (retCode & _NVMCON_WRERR_MASK) {
-			SetPageWriteError(1);
-			return (7);
-		}
-		dee_page_read_element(currentPage, addrIndex, &data_written, &crc_written, &address_written);
-		//Check whether data and address are written correctly.
-		if (
-			(address_written != addr) ||
-			(data_written != data) ||
-			(crc_written != ~data)
-		) {
-			SetPageWriteError(1);
-			return(7);  //Error - RAM does not match PM
-		}
+		tempPage = currentPage;
 	} else {
-		uint32 retCode = 0;
-		uint32 data_written = 0;
-		uint32 crc_written = 0;
-		uint32 address_written = 0;
-		retCode = dee_page_write_element(nextPage, addrIndex, data, ~data, addr);
-		if (retCode & _NVMCON_LVDERR_MASK) {
-			SetLowVoltageError(1);
-			return (8);
-		}
-		else if (retCode & _NVMCON_WRERR_MASK) {
-			SetPageWriteError(1);
-			return (7);
-		}
-		dee_page_read_element(nextPage, addrIndex, &data_written, &crc_written, &address_written);
-		//Check whether data and address are written correctly.
-		if (
-			(address_written != addr) ||
-			(data_written != data) ||
-			(crc_written != ~data)
-		) {
-			SetPageWriteError(1);
-			return(7);  //Error - RAM does not match PM
-		}
+		tempPage = nextPage;
 	}
-
+	
+	uint32 retCode = 0;
+	uint32 data_written = 0;
+	uint32 crc_written = 0;
+	uint32 address_written = 0;
+	retCode = dee_page_write_element(tempPage, addrIndex, data, ~data, addr);
+	if (retCode & _NVMCON_LVDERR_MASK) {
+		SetLowVoltageError(1);
+		return (8);
+	}
+	else if (retCode & _NVMCON_WRERR_MASK) {
+		SetPageWriteError(1);
+		return (7);
+	}
+	dee_page_read_element(tempPage, addrIndex, &data_written, &crc_written, &address_written);
+	//Check whether data and address are written correctly.
+	if (
+		(address_written != addr) ||
+		(data_written != data) ||
+		(crc_written != ~data)
+	) {
+		SetPageWriteError(1);
+		return(7);  //Error - RAM does not match PM
+	}
+		
 	//Pack if page is full
 	if (packOperation == 0) {//Skip this check if nextPage write is used, reason is PackEE always tries to write the same data
 		if ( (addrIndex == (DEE_NUMBER_OF_DATA_ELEMENTS - 1)) && (activePages < (DEE_PAGE_CNT - 1) ) ) {

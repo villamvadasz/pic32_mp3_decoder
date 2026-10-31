@@ -14,6 +14,8 @@
 #include "fatfs.h"
 
 //#define APP_DEBUG_PLAY_FIRST_FILE_ALWAYS
+//#define APP_DEBUG_DISABLE_RESET
+//#define APP_DEBUG_USE_AVA_MAX_FILE
 
 #define APP_FAILSAFE_TIMER 5000
 #define APP_MAX_FILE_NUMBER_SEARCHING 5000
@@ -81,13 +83,14 @@ uint8 app_volume_up_button_event = 0;
 uint8 app_volume_down_button_event = 0;
 uint8 app_play_pause_button_event = 0;
 
-uint32 app_playFilePosition = 0;
+uint32 app_playFilePosition_NVM = 0;
 uint8 app_volume = 0;
 Timer app_failsafe_timer;
 uint32 app_failsafe_counter = 0;
 
 char app_fileNameFound[64];
 uint8 app_fileNameFound_updated = 0;
+uint8 app_fileNameFound_updated_nothing_found = 0;
 uint8 app_fileNameFound_direction = 1;//1-forward 0-backward search
 DIR app_dir_fs;
 uint32 app_dir_fs_lastPositionCurrent = 0;
@@ -201,12 +204,19 @@ void do_app(void) {
 				case App_State_FS_WaitTrigger : {
 					if (app_fileNameFound_updated == 0) { //somebody consumed the last found file name
 						//so provide a new one
-						app_state_fs = App_State_FS_CheckDisk;
+						#ifdef APP_DEBUG_USE_AVA_MAX_FILE
+							app_fileNameFound_updated = 1;
+							memset(app_fileNameFound, 0, sizeof(app_fileNameFound));
+							strcpy(app_fileNameFound, "0:AVA.MP3");
+						#else
+							app_state_fs = App_State_FS_CheckDisk;
+						#endif
 					}
 					break;
 				}
 				case App_State_FS_CheckDisk : {
 					if (fatfs_isDiskReady()) {
+						app_fileNameFound_updated_nothing_found = 0;
 						app_dir_fs_lastPositionCurrent = 0;
 						app_dir_fs_failsafeExitCounter = APP_MAX_FILE_NUMBER_SEARCHING;
 						app_state_fs = App_State_FS_OpenDir;
@@ -233,13 +243,14 @@ void do_app(void) {
 							FILINFO fno;
 
 							#ifdef APP_DEBUG_PLAY_FIRST_FILE_ALWAYS
-								app_playFilePosition = 0;
+								app_playFilePosition_NVM = 0;
 							#endif
 
 							memset(fno.fname, 0x00, sizeof(fno.fname));
 							res = f_readdir(&app_dir_fs, &fno);                   /* Read a directory item */
 							if (res == FR_OK) {
 								if (fno.fname[0] == 0) {					/* End of dir */
+									app_playFilePosition_NVM = 0; // Set back to start since not enough file present
 									app_state_fs = App_State_FS_CloseDir;
 								} else if (fno.fattrib & AM_DIR) {                 /* It is a directory */
 									//currently subdirs are ignored
@@ -255,22 +266,31 @@ void do_app(void) {
 										app_fileNameFound[1] = ':';
 										strcpy(app_fileNameFound + 2, fno.fname);
 									}
-									if (app_dir_fs_lastPositionCurrent >= app_playFilePosition) {
+									if (app_dir_fs_lastPositionCurrent >= app_playFilePosition_NVM) {
 										app_fileNameFound_updated = 1;
 										app_state_fs = App_State_FS_CloseDir;
 									}
 									app_dir_fs_lastPositionCurrent++;
 								}
 							} else {
+								app_playFilePosition_NVM = 0;
 								app_state_fs = App_State_FS_CloseDir;
 							}
 						}
 					} else {
+						app_playFilePosition_NVM = 0; // Set back to start since not enough file present
 						app_state_fs = App_State_FS_CloseDir;
 					}
 					break;
 				}
 				case App_State_FS_CloseDir : {
+					if (app_fileNameFound_updated == 0) {
+						app_fileNameFound_updated_nothing_found = 1;
+
+						app_fileNameFound_updated = 1;
+						memset(app_fileNameFound, 0, sizeof(app_fileNameFound));
+						strcpy(app_fileNameFound, "0:AVA.MP3");
+					}
 					f_closedir(&app_dir_fs);
 					app_state_fs = App_State_FS_WaitTrigger;
 					break;
@@ -318,6 +338,10 @@ void do_app(void) {
 								}
 								app_state = App_State_Playing;
 							}
+						} else {
+							if (app_fileNameFound_updated_nothing_found) {
+								
+							}
 						}
 					} else {
 						app_state = App_State_PlayTriggerFailsafe;
@@ -360,7 +384,11 @@ void do_app(void) {
 				case App_State_PlayTriggerFailsafe : {
 					app_failsafe_counter++;
 					if (app_failsafe_counter >= APP_FAILSAFE_COUNTER_LIMIT) {
-						mal_reset();
+						#ifndef APP_DEBUG_DISABLE_RESET
+							mal_reset();
+						#else
+							app_state = App_State_TriggerNext;
+						#endif
 					} else {
 						app_state = App_State_TriggerNext;
 					}	
@@ -454,10 +482,10 @@ uint8 app_was_button_pressed(App_Button *button) {
 }
 
 void app_search_next_file(void) {
-	if (app_playFilePosition < APP_MAX_FILE_NUMBER_SEARCHING) {
-		app_playFilePosition++;
+	if (app_playFilePosition_NVM < APP_MAX_FILE_NUMBER_SEARCHING) {
+		app_playFilePosition_NVM++;
 	} else {
-		app_playFilePosition = 0;
+		app_playFilePosition_NVM = 0;
 	}
 	eep_manager_WriteAll_Trigger();
 
@@ -467,10 +495,10 @@ void app_search_next_file(void) {
 }
 
 void app_search_prev_file(void) {
-	if (app_playFilePosition != 0) {
-		app_playFilePosition--;
+	if (app_playFilePosition_NVM != 0) {
+		app_playFilePosition_NVM--;
 	} else {
-		app_playFilePosition = APP_MAX_FILE_NUMBER_SEARCHING;
+		app_playFilePosition_NVM = APP_MAX_FILE_NUMBER_SEARCHING;
 	}
 	eep_manager_WriteAll_Trigger();
 	
