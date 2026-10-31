@@ -1,0 +1,172 @@
+# MPLAB IDE generated this makefile for use with GNU make.
+# Project: pic_mp3_1_0_0.mcp
+# Date: Thu Jun 17 14:31:35 2021
+
+AS = xc32-as.exe
+CC = xc32-gcc.exe
+LD = xc32-ld.exe
+AR = xc32-ar.exe
+HX = xc32-bin2hex.exe
+RM = del
+
+all: ./output/pic_mp3_1_0_0.hex
+
+./output/pic_mp3_1_0_0.hex : ./output/pic_mp3_1_0_0.elf
+	$(HX) ".\output\pic_mp3_1_0_0.elf"
+
+./output/pic_mp3_1_0_0.elf : output/tmr.o output/mal.o output/ringBuffer.o output/sleep.o output/eep_manager.o output/usb.o output/usb_descriptors.o output/usb_device.o output/usb_function_hid.o output/spi_sw.o output/exceptions.o output/isr.o output/vs1053.o output/ff.o output/mmc_multiplexer.o output/fatfs.o output/fatrtc.o output/mp3.o output/tokenize.o output/bitstream.o output/buffers.o output/dct32.o output/dequant.o output/dqchan.o output/huffman.o output/hufftabs.o output/imdct.o output/mp3dec.o output/mp3tabs.o output/polyphase.o output/scalfact.o output/stproc.o output/subband.o output/trigtabs.o output/main.o output/io.o output/c_eep_manager.o output/app.o output/ad.o output/mmc_sdcard_microchip.o output/SD-SPI.o output/usb_function_msd.o output/eep_manager_crc.o output/bootloader_interface.o output/eeprom.o output/dee_page_helper.o output/dee_page.o output/dee.o output/randomValue.o output/noinitram.o
+	$(CC) -mprocessor=32MX440F256H "output\tmr.o" "output\mal.o" "output\ringBuffer.o" "output\sleep.o" "output\eep_manager.o" "output\usb.o" "output\usb_descriptors.o" "output\usb_device.o" "output\usb_function_hid.o" "output\spi_sw.o" "output\exceptions.o" "output\isr.o" "output\vs1053.o" "output\ff.o" "output\mmc_multiplexer.o" "output\fatfs.o" "output\fatrtc.o" "output\mp3.o" "output\tokenize.o" "output\bitstream.o" "output\buffers.o" "output\dct32.o" "output\dequant.o" "output\dqchan.o" "output\huffman.o" "output\hufftabs.o" "output\imdct.o" "output\mp3dec.o" "output\mp3tabs.o" "output\polyphase.o" "output\scalfact.o" "output\stproc.o" "output\subband.o" "output\trigtabs.o" "output\main.o" "output\io.o" "output\c_eep_manager.o" "output\app.o" "output\ad.o" "output\mmc_sdcard_microchip.o" "output\SD-SPI.o" "output\usb_function_msd.o" "output\eep_manager_crc.o" "output\bootloader_interface.o" "output\eeprom.o" "output\dee_page_helper.o" "output\dee_page.o" "output\dee.o" "output\randomValue.o" "output\noinitram.o" -o".\output\pic_mp3_1_0_0.elf" -Wl,-L"C:\Program Files (x86)\Microchip\MPLAB C32 Suite\lib",-L"C:\Program Files (x86)\Microchip\MPLAB C32 Suite\pic32mx\lib",--script="lkr\app_32MX440F256H.ld",--defsym=__MPLAB_BUILD=1,--defsym=_min_heap_size=4096,-Map=".\output\pic_mp3_1_0_0.map"
+
+output/tmr.o : src/tmr/tmr.c inc/mal/mal.h inc/tmr/tmr.h inc/mal/k_stdtype.h inc/c_tmr.h inc/c_main.h inc/main.h inc/version/version.h inc/c_main.h inc/c_isr.h inc/usb/usb.h inc/usb/GenericTypeDefs.h inc/usb/Compiler.h inc/usb/usb_config.h inc/USB/usb_common.h inc/USB/usb_ch9.h inc/USB/usb_device.h inc/USB/usb_hal.h inc/USB/usb_hal_pic32.h inc/USB/Compiler.h inc/USB/usb_config.h
+	$(CC) -mprocessor=32MX440F256H -x c -c "src\tmr\tmr.c" -o".\output\tmr.o" -MMD -MF".\output\tmr.d" -I".\inc" -I".\inc\helix" -I".\inc\tokenize" -I".\inc\mp3" -I".\inc\fatfs" -I".\inc\vs1053" -I".\inc\eeprom" -I".\inc\eeprom_manager" -I".\inc\task" -I".\inc\version" -I".\inc\buffer" -I".\inc\usb" -I".\inc\mal" -I".\inc\spi" -I".\inc\tmr" -g -D_SUPPRESS_PLIB_WARNING -Wall
+
+output/mal.o : src/mal/mal.c inc/mal/mal.h inc/c_main.h inc/mal/noinitram.h
+	$(CC) -mprocessor=32MX440F256H -x c -c "src\mal\mal.c" -o".\output\mal.o" -MMD -MF".\output\mal.d" -I".\inc" -I".\inc\helix" -I".\inc\tokenize" -I".\inc\mp3" -I".\inc\fatfs" -I".\inc\vs1053" -I".\inc\eeprom" -I".\inc\eeprom_manager" -I".\inc\task" -I".\inc\version" -I".\inc\buffer" -I".\inc\usb" -I".\inc\mal" -I".\inc\spi" -I".\inc\tmr" -g -D_SUPPRESS_PLIB_WARNING -Wall
+
+output/ringBuffer.o : src/buffer/ringBuffer.c inc/buffer/ringBuffer.h inc/c_ringBuffer.h inc/mal/mal.h
+	$(CC) -mprocessor=32MX440F256H -x c -c "src\buffer\ringBuffer.c" -o".\output\ringBuffer.o" -MMD -MF".\output\ringBuffer.d" -I".\inc" -I".\inc\helix" -I".\inc\tokenize" -I".\inc\mp3" -I".\inc\fatfs" -I".\inc\vs1053" -I".\inc\eeprom" -I".\inc\eeprom_manager" -I".\inc\task" -I".\inc\version" -I".\inc\buffer" -I".\inc\usb" -I".\inc\mal" -I".\inc\spi" -I".\inc\tmr" -g -D_SUPPRESS_PLIB_WARNING -Wall
+
+output/sleep.o : src/mal/sleep.c inc/mal/sleep.h inc/mal/k_stdtype.h inc/c_sleep.h inc/mal/mal.h inc/mal/k_stdtype.h inc/tmr/tmr.h
+	$(CC) -mprocessor=32MX440F256H -x c -c "src\mal\sleep.c" -o".\output\sleep.o" -MMD -MF".\output\sleep.d" -I".\inc" -I".\inc\helix" -I".\inc\tokenize" -I".\inc\mp3" -I".\inc\fatfs" -I".\inc\vs1053" -I".\inc\eeprom" -I".\inc\eeprom_manager" -I".\inc\task" -I".\inc\version" -I".\inc\buffer" -I".\inc\usb" -I".\inc\mal" -I".\inc\spi" -I".\inc\tmr" -g -D_SUPPRESS_PLIB_WARNING -Wall
+
+output/eep_manager.o : src/eeprom_manager/eep_manager.c inc/eeprom_manager/eep_manager.h inc/mal/k_stdtype.h inc/c_eep_manager.h inc/eeprom/eeprom.h inc/mal/mal.h
+	$(CC) -mprocessor=32MX440F256H -x c -c "src\eeprom_manager\eep_manager.c" -o".\output\eep_manager.o" -MMD -MF".\output\eep_manager.d" -I".\inc" -I".\inc\helix" -I".\inc\tokenize" -I".\inc\mp3" -I".\inc\fatfs" -I".\inc\vs1053" -I".\inc\eeprom" -I".\inc\eeprom_manager" -I".\inc\task" -I".\inc\version" -I".\inc\buffer" -I".\inc\usb" -I".\inc\mal" -I".\inc\spi" -I".\inc\tmr" -g -D_SUPPRESS_PLIB_WARNING -Wall
+
+output/usb.o : src/usb/usb.c inc/usb/usb.h inc/usb/GenericTypeDefs.h inc/mal/k_stdtype.h inc/usb/Compiler.h inc/usb/usb_config.h inc/USB/usb_common.h inc/USB/usb_ch9.h inc/USB/usb_device.h inc/USB/usb_hal.h inc/USB/usb_hal_pic32.h inc/USB/Compiler.h inc/USB/usb_config.h inc/mal/mal.h inc/c_usb.h inc/usb/usb_device.h inc/usb/usb_config.h inc/usb/usb_function_hid.h inc/usb/usb_common.h inc/usb/usb_ch9.h inc/usb/usb_device.h inc/usb/usb_hal.h inc/usb/usb_function_msd.h inc/fatfs/SD-SPI.h inc/usb/GenericTypeDefs.h inc/c_isr.h inc/tmr/tmr.h
+	$(CC) -mprocessor=32MX440F256H -x c -c "src\usb\usb.c" -o".\output\usb.o" -MMD -MF".\output\usb.d" -I".\inc" -I".\inc\helix" -I".\inc\tokenize" -I".\inc\mp3" -I".\inc\fatfs" -I".\inc\vs1053" -I".\inc\eeprom" -I".\inc\eeprom_manager" -I".\inc\task" -I".\inc\version" -I".\inc\buffer" -I".\inc\usb" -I".\inc\mal" -I".\inc\spi" -I".\inc\tmr" -g -D_SUPPRESS_PLIB_WARNING -Wall
+
+output/usb_descriptors.o : src/usb/usb_descriptors.c inc/USB/usb.h inc/USB/GenericTypeDefs.h inc/mal/k_stdtype.h inc/USB/Compiler.h inc/USB/usb_config.h inc/USB/usb_common.h inc/USB/usb_ch9.h inc/USB/usb_device.h inc/USB/usb_hal.h inc/USB/usb_hal_pic32.h inc/USB/Compiler.h inc/USB/usb_config.h inc/mal/mal.h inc/USB/usb_function_msd.h inc/fatfs/SD-SPI.h inc/usb/GenericTypeDefs.h inc/USB/usb_function_hid.h inc/USB/usb_common.h inc/USB/usb_ch9.h inc/USB/usb_device.h inc/USB/usb_hal.h
+	$(CC) -mprocessor=32MX440F256H -x c -c "src\usb\usb_descriptors.c" -o".\output\usb_descriptors.o" -MMD -MF".\output\usb_descriptors.d" -I".\inc" -I".\inc\helix" -I".\inc\tokenize" -I".\inc\mp3" -I".\inc\fatfs" -I".\inc\vs1053" -I".\inc\eeprom" -I".\inc\eeprom_manager" -I".\inc\task" -I".\inc\version" -I".\inc\buffer" -I".\inc\usb" -I".\inc\mal" -I".\inc\spi" -I".\inc\tmr" -g -D_SUPPRESS_PLIB_WARNING -Wall
+
+output/usb_device.o : src/usb/usb_device.c inc/usb/usb.h inc/usb/GenericTypeDefs.h inc/mal/k_stdtype.h inc/usb/Compiler.h inc/usb/usb_config.h inc/USB/usb_common.h inc/USB/usb_ch9.h inc/USB/usb_device.h inc/USB/usb_hal.h inc/USB/usb_hal_pic32.h inc/USB/Compiler.h inc/USB/usb_config.h inc/mal/mal.h inc/c_usb.h inc/usb/usb_device_local.h inc/usb/usb_function_msd.h inc/fatfs/SD-SPI.h inc/usb/GenericTypeDefs.h
+	$(CC) -mprocessor=32MX440F256H -x c -c "src\usb\usb_device.c" -o".\output\usb_device.o" -MMD -MF".\output\usb_device.d" -I".\inc" -I".\inc\helix" -I".\inc\tokenize" -I".\inc\mp3" -I".\inc\fatfs" -I".\inc\vs1053" -I".\inc\eeprom" -I".\inc\eeprom_manager" -I".\inc\task" -I".\inc\version" -I".\inc\buffer" -I".\inc\usb" -I".\inc\mal" -I".\inc\spi" -I".\inc\tmr" -g -D_SUPPRESS_PLIB_WARNING -Wall
+
+output/usb_function_hid.o : src/usb/usb_function_hid.c inc/usb/GenericTypeDefs.h inc/mal/k_stdtype.h inc/usb/Compiler.h inc/USB/usb.h inc/USB/GenericTypeDefs.h inc/USB/Compiler.h inc/USB/usb_config.h inc/USB/usb_common.h inc/USB/usb_ch9.h inc/USB/usb_device.h inc/USB/usb_hal.h inc/USB/usb_hal_pic32.h inc/USB/Compiler.h inc/USB/usb_config.h inc/mal/mal.h inc/USB/usb_function_hid.h inc/USB/usb_common.h inc/USB/usb_ch9.h inc/USB/usb_device.h inc/USB/usb_hal.h
+	$(CC) -mprocessor=32MX440F256H -x c -c "src\usb\usb_function_hid.c" -o".\output\usb_function_hid.o" -MMD -MF".\output\usb_function_hid.d" -I".\inc" -I".\inc\helix" -I".\inc\tokenize" -I".\inc\mp3" -I".\inc\fatfs" -I".\inc\vs1053" -I".\inc\eeprom" -I".\inc\eeprom_manager" -I".\inc\task" -I".\inc\version" -I".\inc\buffer" -I".\inc\usb" -I".\inc\mal" -I".\inc\spi" -I".\inc\tmr" -g -D_SUPPRESS_PLIB_WARNING -Wall
+
+output/spi_sw.o : src/spi/spi_sw.c inc/spi/spi_sw.h inc/mal/k_stdtype.h inc/c_spi_sw.h inc/mal/mal.h inc/c_main.h
+	$(CC) -mprocessor=32MX440F256H -x c -c "src\spi\spi_sw.c" -o".\output\spi_sw.o" -MMD -MF".\output\spi_sw.d" -I".\inc" -I".\inc\helix" -I".\inc\tokenize" -I".\inc\mp3" -I".\inc\fatfs" -I".\inc\vs1053" -I".\inc\eeprom" -I".\inc\eeprom_manager" -I".\inc\task" -I".\inc\version" -I".\inc\buffer" -I".\inc\usb" -I".\inc\mal" -I".\inc\spi" -I".\inc\tmr" -g -D_SUPPRESS_PLIB_WARNING -Wall
+
+output/exceptions.o : src/mal/exceptions.c inc/mal/mal.h inc/c_isr.h inc/tmr/tmr.h inc/mal/k_stdtype.h inc/usb/usb.h inc/usb/GenericTypeDefs.h inc/usb/Compiler.h inc/usb/usb_config.h inc/USB/usb_common.h inc/USB/usb_ch9.h inc/USB/usb_device.h inc/USB/usb_hal.h inc/USB/usb_hal_pic32.h inc/USB/Compiler.h inc/USB/usb_config.h inc/mal/exceptions.h inc/mal/k_stdtype.h
+	$(CC) -mprocessor=32MX440F256H -x c -c "src\mal\exceptions.c" -o".\output\exceptions.o" -MMD -MF".\output\exceptions.d" -I".\inc" -I".\inc\helix" -I".\inc\tokenize" -I".\inc\mp3" -I".\inc\fatfs" -I".\inc\vs1053" -I".\inc\eeprom" -I".\inc\eeprom_manager" -I".\inc\task" -I".\inc\version" -I".\inc\buffer" -I".\inc\usb" -I".\inc\mal" -I".\inc\spi" -I".\inc\tmr" -g -D_SUPPRESS_PLIB_WARNING -Wall
+
+output/isr.o : src/mal/isr.c inc/mal/isr.h inc/c_isr.h inc/tmr/tmr.h inc/mal/k_stdtype.h inc/usb/usb.h inc/usb/GenericTypeDefs.h inc/usb/Compiler.h inc/usb/usb_config.h inc/USB/usb_common.h inc/USB/usb_ch9.h inc/USB/usb_device.h inc/USB/usb_hal.h inc/USB/usb_hal_pic32.h inc/USB/Compiler.h inc/USB/usb_config.h inc/mal/mal.h inc/main.h inc/version/version.h
+	$(CC) -mprocessor=32MX440F256H -x c -c "src\mal\isr.c" -o".\output\isr.o" -MMD -MF".\output\isr.d" -I".\inc" -I".\inc\helix" -I".\inc\tokenize" -I".\inc\mp3" -I".\inc\fatfs" -I".\inc\vs1053" -I".\inc\eeprom" -I".\inc\eeprom_manager" -I".\inc\task" -I".\inc\version" -I".\inc\buffer" -I".\inc\usb" -I".\inc\mal" -I".\inc\spi" -I".\inc\tmr" -g -D_SUPPRESS_PLIB_WARNING -Wall
+
+output/vs1053.o : src/vs1053/vs1053.c inc/vs1053/vs1053.h inc/mal/k_stdtype.h inc/c_vs1053.h inc/spi/spi_sw.h inc/mal/mal.h inc/tmr/tmr.h inc/c_spi_sw.h inc/fatfs/fatfs.h inc/fatfs/ff.h inc/fatfs/integer.h inc/usb/GenericTypeDefs.h inc/fatfs/ffconf.h inc/fatfs/diskio.h
+	$(CC) -mprocessor=32MX440F256H -x c -c "src\vs1053\vs1053.c" -o".\output\vs1053.o" -MMD -MF".\output\vs1053.d" -I".\inc" -I".\inc\helix" -I".\inc\tokenize" -I".\inc\mp3" -I".\inc\fatfs" -I".\inc\vs1053" -I".\inc\eeprom" -I".\inc\eeprom_manager" -I".\inc\task" -I".\inc\version" -I".\inc\buffer" -I".\inc\usb" -I".\inc\mal" -I".\inc\spi" -I".\inc\tmr" -g -D_SUPPRESS_PLIB_WARNING -Wall
+
+output/ff.o : src/fatfs/ff.c inc/fatfs/ff.h inc/fatfs/integer.h inc/mal/k_stdtype.h inc/usb/GenericTypeDefs.h inc/fatfs/ffconf.h inc/fatfs/diskio.h inc/fatfs/diskio.h
+	$(CC) -mprocessor=32MX440F256H -x c -c "src\fatfs\ff.c" -o".\output\ff.o" -MMD -MF".\output\ff.d" -I".\inc" -I".\inc\helix" -I".\inc\tokenize" -I".\inc\mp3" -I".\inc\fatfs" -I".\inc\vs1053" -I".\inc\eeprom" -I".\inc\eeprom_manager" -I".\inc\task" -I".\inc\version" -I".\inc\buffer" -I".\inc\usb" -I".\inc\mal" -I".\inc\spi" -I".\inc\tmr" -g -D_SUPPRESS_PLIB_WARNING -Wall
+
+output/mmc_multiplexer.o : src/fatfs/mmc_multiplexer.c inc/mal/mal.h inc/fatfs/diskio.h inc/fatfs/integer.h inc/mal/k_stdtype.h inc/usb/GenericTypeDefs.h inc/c_fatfs.h inc/fatfs/mmc_sdcard.h inc/fatfs/mmc_sdcard_4bit.h inc/fatfs/mmc_internalflash.h inc/fatfs/mmc_externalflash.h inc/fatfs/mmc_reserve.h
+	$(CC) -mprocessor=32MX440F256H -x c -c "src\fatfs\mmc_multiplexer.c" -o".\output\mmc_multiplexer.o" -MMD -MF".\output\mmc_multiplexer.d" -I".\inc" -I".\inc\helix" -I".\inc\tokenize" -I".\inc\mp3" -I".\inc\fatfs" -I".\inc\vs1053" -I".\inc\eeprom" -I".\inc\eeprom_manager" -I".\inc\task" -I".\inc\version" -I".\inc\buffer" -I".\inc\usb" -I".\inc\mal" -I".\inc\spi" -I".\inc\tmr" -g -D_SUPPRESS_PLIB_WARNING -Wall
+
+output/fatfs.o : src/fatfs/fatfs.c inc/fatfs/fatfs.h inc/mal/k_stdtype.h inc/fatfs/ff.h inc/fatfs/integer.h inc/usb/GenericTypeDefs.h inc/fatfs/ffconf.h inc/fatfs/diskio.h inc/c_fatfs.h inc/fatfs/mmc_multiplexer.h inc/fatfs/ff.h inc/fatfs/SD-SPI.h inc/fatfs/mmc_sdcard.h inc/fatfs/SDcard.h inc/fatfs/SD-SPI.h
+	$(CC) -mprocessor=32MX440F256H -x c -c "src\fatfs\fatfs.c" -o".\output\fatfs.o" -MMD -MF".\output\fatfs.d" -I".\inc" -I".\inc\helix" -I".\inc\tokenize" -I".\inc\mp3" -I".\inc\fatfs" -I".\inc\vs1053" -I".\inc\eeprom" -I".\inc\eeprom_manager" -I".\inc\task" -I".\inc\version" -I".\inc\buffer" -I".\inc\usb" -I".\inc\mal" -I".\inc\spi" -I".\inc\tmr" -g -D_SUPPRESS_PLIB_WARNING -Wall
+
+output/fatrtc.o : src/fatfs/fatrtc.c inc/fatfs/ff.h inc/fatfs/integer.h inc/mal/k_stdtype.h inc/usb/GenericTypeDefs.h inc/fatfs/ffconf.h inc/fatfs/diskio.h inc/mal/mal.h
+	$(CC) -mprocessor=32MX440F256H -x c -c "src\fatfs\fatrtc.c" -o".\output\fatrtc.o" -MMD -MF".\output\fatrtc.d" -I".\inc" -I".\inc\helix" -I".\inc\tokenize" -I".\inc\mp3" -I".\inc\fatfs" -I".\inc\vs1053" -I".\inc\eeprom" -I".\inc\eeprom_manager" -I".\inc\task" -I".\inc\version" -I".\inc\buffer" -I".\inc\usb" -I".\inc\mal" -I".\inc\spi" -I".\inc\tmr" -g -D_SUPPRESS_PLIB_WARNING -Wall
+
+output/mp3.o : src/mp3/mp3.c inc/mp3/mp3.h inc/mal/k_stdtype.h inc/c_mp3.h inc/fatfs/fatfs.h inc/fatfs/ff.h inc/fatfs/integer.h inc/usb/GenericTypeDefs.h inc/fatfs/ffconf.h inc/fatfs/diskio.h inc/fatfs/ff.h inc/tokenize/tokenize.h inc/vs1053/vs1053.h inc/fatfs/SDcard.h inc/fatfs/SD-SPI.h inc/tmr/tmr.h inc/mal/mal.h
+	$(CC) -mprocessor=32MX440F256H -x c -c "src\mp3\mp3.c" -o".\output\mp3.o" -MMD -MF".\output\mp3.d" -I".\inc" -I".\inc\helix" -I".\inc\tokenize" -I".\inc\mp3" -I".\inc\fatfs" -I".\inc\vs1053" -I".\inc\eeprom" -I".\inc\eeprom_manager" -I".\inc\task" -I".\inc\version" -I".\inc\buffer" -I".\inc\usb" -I".\inc\mal" -I".\inc\spi" -I".\inc\tmr" -g -D_SUPPRESS_PLIB_WARNING -Wall
+
+output/tokenize.o : src/tokenize/tokenize.c inc/tokenize/tokenize.h inc/mal/k_stdtype.h
+	$(CC) -mprocessor=32MX440F256H -x c -c "src\tokenize\tokenize.c" -o".\output\tokenize.o" -MMD -MF".\output\tokenize.d" -I".\inc" -I".\inc\helix" -I".\inc\tokenize" -I".\inc\mp3" -I".\inc\fatfs" -I".\inc\vs1053" -I".\inc\eeprom" -I".\inc\eeprom_manager" -I".\inc\task" -I".\inc\version" -I".\inc\buffer" -I".\inc\usb" -I".\inc\mal" -I".\inc\spi" -I".\inc\tmr" -g -D_SUPPRESS_PLIB_WARNING -Wall
+
+output/bitstream.o : src/helix/bitstream.c inc/helix/coder.h inc/helix/mp3common.h inc/helix/mp3dec.h inc/helix/statname.h inc/helix/assembly.h
+	$(CC) -mprocessor=32MX440F256H -x c -c "src\helix\bitstream.c" -o".\output\bitstream.o" -MMD -MF".\output\bitstream.d" -I".\inc" -I".\inc\helix" -I".\inc\tokenize" -I".\inc\mp3" -I".\inc\fatfs" -I".\inc\vs1053" -I".\inc\eeprom" -I".\inc\eeprom_manager" -I".\inc\task" -I".\inc\version" -I".\inc\buffer" -I".\inc\usb" -I".\inc\mal" -I".\inc\spi" -I".\inc\tmr" -g -D_SUPPRESS_PLIB_WARNING -Wall
+
+output/buffers.o : src/helix/buffers.c inc/helix/coder.h inc/helix/mp3common.h inc/helix/mp3dec.h inc/helix/statname.h
+	$(CC) -mprocessor=32MX440F256H -x c -c "src\helix\buffers.c" -o".\output\buffers.o" -MMD -MF".\output\buffers.d" -I".\inc" -I".\inc\helix" -I".\inc\tokenize" -I".\inc\mp3" -I".\inc\fatfs" -I".\inc\vs1053" -I".\inc\eeprom" -I".\inc\eeprom_manager" -I".\inc\task" -I".\inc\version" -I".\inc\buffer" -I".\inc\usb" -I".\inc\mal" -I".\inc\spi" -I".\inc\tmr" -g -D_SUPPRESS_PLIB_WARNING -Wall
+
+output/dct32.o : src/helix/dct32.c inc/helix/coder.h inc/helix/mp3common.h inc/helix/mp3dec.h inc/helix/statname.h inc/helix/assembly.h
+	$(CC) -mprocessor=32MX440F256H -x c -c "src\helix\dct32.c" -o".\output\dct32.o" -MMD -MF".\output\dct32.d" -I".\inc" -I".\inc\helix" -I".\inc\tokenize" -I".\inc\mp3" -I".\inc\fatfs" -I".\inc\vs1053" -I".\inc\eeprom" -I".\inc\eeprom_manager" -I".\inc\task" -I".\inc\version" -I".\inc\buffer" -I".\inc\usb" -I".\inc\mal" -I".\inc\spi" -I".\inc\tmr" -g -D_SUPPRESS_PLIB_WARNING -Wall
+
+output/dequant.o : src/helix/dequant.c inc/helix/coder.h inc/helix/mp3common.h inc/helix/mp3dec.h inc/helix/statname.h inc/helix/assembly.h
+	$(CC) -mprocessor=32MX440F256H -x c -c "src\helix\dequant.c" -o".\output\dequant.o" -MMD -MF".\output\dequant.d" -I".\inc" -I".\inc\helix" -I".\inc\tokenize" -I".\inc\mp3" -I".\inc\fatfs" -I".\inc\vs1053" -I".\inc\eeprom" -I".\inc\eeprom_manager" -I".\inc\task" -I".\inc\version" -I".\inc\buffer" -I".\inc\usb" -I".\inc\mal" -I".\inc\spi" -I".\inc\tmr" -g -D_SUPPRESS_PLIB_WARNING -Wall
+
+output/dqchan.o : src/helix/dqchan.c inc/helix/coder.h inc/helix/mp3common.h inc/helix/mp3dec.h inc/helix/statname.h inc/helix/assembly.h
+	$(CC) -mprocessor=32MX440F256H -x c -c "src\helix\dqchan.c" -o".\output\dqchan.o" -MMD -MF".\output\dqchan.d" -I".\inc" -I".\inc\helix" -I".\inc\tokenize" -I".\inc\mp3" -I".\inc\fatfs" -I".\inc\vs1053" -I".\inc\eeprom" -I".\inc\eeprom_manager" -I".\inc\task" -I".\inc\version" -I".\inc\buffer" -I".\inc\usb" -I".\inc\mal" -I".\inc\spi" -I".\inc\tmr" -g -D_SUPPRESS_PLIB_WARNING -Wall
+
+output/huffman.o : src/helix/huffman.c inc/helix/coder.h inc/helix/mp3common.h inc/helix/mp3dec.h inc/helix/statname.h
+	$(CC) -mprocessor=32MX440F256H -x c -c "src\helix\huffman.c" -o".\output\huffman.o" -MMD -MF".\output\huffman.d" -I".\inc" -I".\inc\helix" -I".\inc\tokenize" -I".\inc\mp3" -I".\inc\fatfs" -I".\inc\vs1053" -I".\inc\eeprom" -I".\inc\eeprom_manager" -I".\inc\task" -I".\inc\version" -I".\inc\buffer" -I".\inc\usb" -I".\inc\mal" -I".\inc\spi" -I".\inc\tmr" -g -D_SUPPRESS_PLIB_WARNING -Wall
+
+output/hufftabs.o : src/helix/hufftabs.c inc/helix/coder.h inc/helix/mp3common.h inc/helix/mp3dec.h inc/helix/statname.h
+	$(CC) -mprocessor=32MX440F256H -x c -c "src\helix\hufftabs.c" -o".\output\hufftabs.o" -MMD -MF".\output\hufftabs.d" -I".\inc" -I".\inc\helix" -I".\inc\tokenize" -I".\inc\mp3" -I".\inc\fatfs" -I".\inc\vs1053" -I".\inc\eeprom" -I".\inc\eeprom_manager" -I".\inc\task" -I".\inc\version" -I".\inc\buffer" -I".\inc\usb" -I".\inc\mal" -I".\inc\spi" -I".\inc\tmr" -g -D_SUPPRESS_PLIB_WARNING -Wall
+
+output/imdct.o : src/helix/imdct.c inc/helix/coder.h inc/helix/mp3common.h inc/helix/mp3dec.h inc/helix/statname.h inc/helix/assembly.h
+	$(CC) -mprocessor=32MX440F256H -x c -c "src\helix\imdct.c" -o".\output\imdct.o" -MMD -MF".\output\imdct.d" -I".\inc" -I".\inc\helix" -I".\inc\tokenize" -I".\inc\mp3" -I".\inc\fatfs" -I".\inc\vs1053" -I".\inc\eeprom" -I".\inc\eeprom_manager" -I".\inc\task" -I".\inc\version" -I".\inc\buffer" -I".\inc\usb" -I".\inc\mal" -I".\inc\spi" -I".\inc\tmr" -g -D_SUPPRESS_PLIB_WARNING -Wall
+
+output/mp3dec.o : src/helix/mp3dec.c inc/helix/mp3common.h inc/helix/mp3dec.h inc/helix/statname.h
+	$(CC) -mprocessor=32MX440F256H -x c -c "src\helix\mp3dec.c" -o".\output\mp3dec.o" -MMD -MF".\output\mp3dec.d" -I".\inc" -I".\inc\helix" -I".\inc\tokenize" -I".\inc\mp3" -I".\inc\fatfs" -I".\inc\vs1053" -I".\inc\eeprom" -I".\inc\eeprom_manager" -I".\inc\task" -I".\inc\version" -I".\inc\buffer" -I".\inc\usb" -I".\inc\mal" -I".\inc\spi" -I".\inc\tmr" -g -D_SUPPRESS_PLIB_WARNING -Wall
+
+output/mp3tabs.o : src/helix/mp3tabs.c inc/helix/mp3common.h inc/helix/mp3dec.h inc/helix/statname.h
+	$(CC) -mprocessor=32MX440F256H -x c -c "src\helix\mp3tabs.c" -o".\output\mp3tabs.o" -MMD -MF".\output\mp3tabs.d" -I".\inc" -I".\inc\helix" -I".\inc\tokenize" -I".\inc\mp3" -I".\inc\fatfs" -I".\inc\vs1053" -I".\inc\eeprom" -I".\inc\eeprom_manager" -I".\inc\task" -I".\inc\version" -I".\inc\buffer" -I".\inc\usb" -I".\inc\mal" -I".\inc\spi" -I".\inc\tmr" -g -D_SUPPRESS_PLIB_WARNING -Wall
+
+output/polyphase.o : src/helix/polyphase.c inc/helix/coder.h inc/helix/mp3common.h inc/helix/mp3dec.h inc/helix/statname.h inc/helix/assembly.h
+	$(CC) -mprocessor=32MX440F256H -x c -c "src\helix\polyphase.c" -o".\output\polyphase.o" -MMD -MF".\output\polyphase.d" -I".\inc" -I".\inc\helix" -I".\inc\tokenize" -I".\inc\mp3" -I".\inc\fatfs" -I".\inc\vs1053" -I".\inc\eeprom" -I".\inc\eeprom_manager" -I".\inc\task" -I".\inc\version" -I".\inc\buffer" -I".\inc\usb" -I".\inc\mal" -I".\inc\spi" -I".\inc\tmr" -g -D_SUPPRESS_PLIB_WARNING -Wall
+
+output/scalfact.o : src/helix/scalfact.c inc/helix/coder.h inc/helix/mp3common.h inc/helix/mp3dec.h inc/helix/statname.h
+	$(CC) -mprocessor=32MX440F256H -x c -c "src\helix\scalfact.c" -o".\output\scalfact.o" -MMD -MF".\output\scalfact.d" -I".\inc" -I".\inc\helix" -I".\inc\tokenize" -I".\inc\mp3" -I".\inc\fatfs" -I".\inc\vs1053" -I".\inc\eeprom" -I".\inc\eeprom_manager" -I".\inc\task" -I".\inc\version" -I".\inc\buffer" -I".\inc\usb" -I".\inc\mal" -I".\inc\spi" -I".\inc\tmr" -g -D_SUPPRESS_PLIB_WARNING -Wall
+
+output/stproc.o : src/helix/stproc.c inc/helix/coder.h inc/helix/mp3common.h inc/helix/mp3dec.h inc/helix/statname.h inc/helix/assembly.h
+	$(CC) -mprocessor=32MX440F256H -x c -c "src\helix\stproc.c" -o".\output\stproc.o" -MMD -MF".\output\stproc.d" -I".\inc" -I".\inc\helix" -I".\inc\tokenize" -I".\inc\mp3" -I".\inc\fatfs" -I".\inc\vs1053" -I".\inc\eeprom" -I".\inc\eeprom_manager" -I".\inc\task" -I".\inc\version" -I".\inc\buffer" -I".\inc\usb" -I".\inc\mal" -I".\inc\spi" -I".\inc\tmr" -g -D_SUPPRESS_PLIB_WARNING -Wall
+
+output/subband.o : src/helix/subband.c inc/helix/coder.h inc/helix/mp3common.h inc/helix/mp3dec.h inc/helix/statname.h inc/helix/assembly.h
+	$(CC) -mprocessor=32MX440F256H -x c -c "src\helix\subband.c" -o".\output\subband.o" -MMD -MF".\output\subband.d" -I".\inc" -I".\inc\helix" -I".\inc\tokenize" -I".\inc\mp3" -I".\inc\fatfs" -I".\inc\vs1053" -I".\inc\eeprom" -I".\inc\eeprom_manager" -I".\inc\task" -I".\inc\version" -I".\inc\buffer" -I".\inc\usb" -I".\inc\mal" -I".\inc\spi" -I".\inc\tmr" -g -D_SUPPRESS_PLIB_WARNING -Wall
+
+output/trigtabs.o : src/helix/trigtabs.c inc/helix/coder.h inc/helix/mp3common.h inc/helix/mp3dec.h inc/helix/statname.h
+	$(CC) -mprocessor=32MX440F256H -x c -c "src\helix\trigtabs.c" -o".\output\trigtabs.o" -MMD -MF".\output\trigtabs.d" -I".\inc" -I".\inc\helix" -I".\inc\tokenize" -I".\inc\mp3" -I".\inc\fatfs" -I".\inc\vs1053" -I".\inc\eeprom" -I".\inc\eeprom_manager" -I".\inc\task" -I".\inc\version" -I".\inc\buffer" -I".\inc\usb" -I".\inc\mal" -I".\inc\spi" -I".\inc\tmr" -g -D_SUPPRESS_PLIB_WARNING -Wall
+
+output/main.o : src/main.c inc/main.h inc/version/version.h inc/mal/k_stdtype.h inc/c_main.h inc/mal/mal.h inc/mal/sleep.h inc/mal/k_stdtype.h inc/tmr/tmr.h inc/mal/stackmeasure.h inc/io.h inc/mal/isr.h inc/bootloader_interface.h inc/spi/spi_sw.h inc/c_app.h inc/app.h inc/eeprom_manager/eep_manager.h inc/c_eep_manager.h inc/ad.h inc/mp3/mp3.h inc/vs1053/vs1053.h inc/fatfs/fatfs.h inc/fatfs/ff.h inc/fatfs/integer.h inc/usb/GenericTypeDefs.h inc/fatfs/ffconf.h inc/fatfs/diskio.h inc/fatfs/SPIcard.h inc/fatfs/SD-SPI.h inc/usb/usb.h inc/usb/GenericTypeDefs.h inc/usb/Compiler.h inc/usb/usb_config.h inc/USB/usb_common.h inc/USB/usb_ch9.h inc/USB/usb_device.h inc/USB/usb_hal.h inc/USB/usb_hal_pic32.h inc/USB/Compiler.h inc/USB/usb_config.h inc/eeprom/dee.h
+	$(CC) -mprocessor=32MX440F256H -x c -c "src\main.c" -o".\output\main.o" -MMD -MF".\output\main.d" -I".\inc" -I".\inc\helix" -I".\inc\tokenize" -I".\inc\mp3" -I".\inc\fatfs" -I".\inc\vs1053" -I".\inc\eeprom" -I".\inc\eeprom_manager" -I".\inc\task" -I".\inc\version" -I".\inc\buffer" -I".\inc\usb" -I".\inc\mal" -I".\inc\spi" -I".\inc\tmr" -g -D_SUPPRESS_PLIB_WARNING -Wall
+
+output/io.o : src/io.c inc/io.h inc/mal/k_stdtype.h inc/c_io.h inc/mal/mal.h
+	$(CC) -mprocessor=32MX440F256H -x c -c "src\io.c" -o".\output\io.o" -MMD -MF".\output\io.d" -I".\inc" -I".\inc\helix" -I".\inc\tokenize" -I".\inc\mp3" -I".\inc\fatfs" -I".\inc\vs1053" -I".\inc\eeprom" -I".\inc\eeprom_manager" -I".\inc\task" -I".\inc\version" -I".\inc\buffer" -I".\inc\usb" -I".\inc\mal" -I".\inc\spi" -I".\inc\tmr" -g -D_SUPPRESS_PLIB_WARNING -Wall
+
+output/c_eep_manager.o : src/c_eep_manager.c inc/eeprom_manager/eep_manager.h inc/mal/k_stdtype.h inc/c_eep_manager.h inc/app.h
+	$(CC) -mprocessor=32MX440F256H -x c -c "src\c_eep_manager.c" -o".\output\c_eep_manager.o" -MMD -MF".\output\c_eep_manager.d" -I".\inc" -I".\inc\helix" -I".\inc\tokenize" -I".\inc\mp3" -I".\inc\fatfs" -I".\inc\vs1053" -I".\inc\eeprom" -I".\inc\eeprom_manager" -I".\inc\task" -I".\inc\version" -I".\inc\buffer" -I".\inc\usb" -I".\inc\mal" -I".\inc\spi" -I".\inc\tmr" -g -D_SUPPRESS_PLIB_WARNING -Wall
+
+output/app.o : src/app.c inc/app.h inc/mal/mal.h inc/mal/k_stdtype.h inc/tmr/tmr.h inc/mp3/mp3.h inc/mal/sleep.h inc/mal/k_stdtype.h inc/fatfs/ff.h inc/fatfs/integer.h inc/usb/GenericTypeDefs.h inc/fatfs/ffconf.h inc/fatfs/diskio.h inc/vs1053/vs1053.h inc/eeprom_manager/eep_manager.h inc/c_eep_manager.h
+	$(CC) -mprocessor=32MX440F256H -x c -c "src\app.c" -o".\output\app.o" -MMD -MF".\output\app.d" -I".\inc" -I".\inc\helix" -I".\inc\tokenize" -I".\inc\mp3" -I".\inc\fatfs" -I".\inc\vs1053" -I".\inc\eeprom" -I".\inc\eeprom_manager" -I".\inc\task" -I".\inc\version" -I".\inc\buffer" -I".\inc\usb" -I".\inc\mal" -I".\inc\spi" -I".\inc\tmr" -g -D_SUPPRESS_PLIB_WARNING -Wall
+
+output/ad.o : src/ad.c inc/ad.h inc/mal/k_stdtype.h inc/c_ad.h inc/mal/mal.h
+	$(CC) -mprocessor=32MX440F256H -x c -c "src\ad.c" -o".\output\ad.o" -MMD -MF".\output\ad.d" -I".\inc" -I".\inc\helix" -I".\inc\tokenize" -I".\inc\mp3" -I".\inc\fatfs" -I".\inc\vs1053" -I".\inc\eeprom" -I".\inc\eeprom_manager" -I".\inc\task" -I".\inc\version" -I".\inc\buffer" -I".\inc\usb" -I".\inc\mal" -I".\inc\spi" -I".\inc\tmr" -g -D_SUPPRESS_PLIB_WARNING -Wall
+
+output/mmc_sdcard_microchip.o : src/fatfs/mmc_sdcard_microchip.c inc/mal/mal.h inc/fatfs/diskio.h inc/fatfs/integer.h inc/mal/k_stdtype.h inc/usb/GenericTypeDefs.h inc/c_fatfs.h inc/fatfs/SD-SPI.h
+	$(CC) -mprocessor=32MX440F256H -x c -c "src\fatfs\mmc_sdcard_microchip.c" -o".\output\mmc_sdcard_microchip.o" -MMD -MF".\output\mmc_sdcard_microchip.d" -I".\inc" -I".\inc\helix" -I".\inc\tokenize" -I".\inc\mp3" -I".\inc\fatfs" -I".\inc\vs1053" -I".\inc\eeprom" -I".\inc\eeprom_manager" -I".\inc\task" -I".\inc\version" -I".\inc\buffer" -I".\inc\usb" -I".\inc\mal" -I".\inc\spi" -I".\inc\tmr" -g -D_SUPPRESS_PLIB_WARNING -Wall
+
+output/SD-SPI.o : src/fatfs/SD-SPI.c inc/mal/k_stdtype.h inc/c_fatfs.h inc/c_main.h inc/usb/GenericTypeDefs.h inc/fatfs/SD-SPI.h inc/tmr/tmr.h inc/spi/spi_sw.h inc/c_spi_sw.h inc/mal/mal.h
+	$(CC) -mprocessor=32MX440F256H -x c -c "src\fatfs\SD-SPI.c" -o".\output\SD-SPI.o" -MMD -MF".\output\SD-SPI.d" -I".\inc" -I".\inc\helix" -I".\inc\tokenize" -I".\inc\mp3" -I".\inc\fatfs" -I".\inc\vs1053" -I".\inc\eeprom" -I".\inc\eeprom_manager" -I".\inc\task" -I".\inc\version" -I".\inc\buffer" -I".\inc\usb" -I".\inc\mal" -I".\inc\spi" -I".\inc\tmr" -g -D_SUPPRESS_PLIB_WARNING -Wall
+
+output/usb_function_msd.o : src/usb/usb_function_msd.c inc/usb/usb.h inc/usb/GenericTypeDefs.h inc/mal/k_stdtype.h inc/usb/Compiler.h inc/usb/usb_config.h inc/USB/usb_common.h inc/USB/usb_ch9.h inc/USB/usb_device.h inc/USB/usb_hal.h inc/USB/usb_hal_pic32.h inc/USB/Compiler.h inc/USB/usb_config.h inc/mal/mal.h inc/c_usb.h inc/c_fatfs.h inc/USB/usb_function_msd.h inc/USB/GenericTypeDefs.h inc/fatfs/SD-SPI.h inc/usb/GenericTypeDefs.h
+	$(CC) -mprocessor=32MX440F256H -x c -c "src\usb\usb_function_msd.c" -o".\output\usb_function_msd.o" -MMD -MF".\output\usb_function_msd.d" -I".\inc" -I".\inc\helix" -I".\inc\tokenize" -I".\inc\mp3" -I".\inc\fatfs" -I".\inc\vs1053" -I".\inc\eeprom" -I".\inc\eeprom_manager" -I".\inc\task" -I".\inc\version" -I".\inc\buffer" -I".\inc\usb" -I".\inc\mal" -I".\inc\spi" -I".\inc\tmr" -g -D_SUPPRESS_PLIB_WARNING -Wall
+
+output/eep_manager_crc.o : src/eeprom_manager/eep_manager_crc.c inc/eeprom_manager/eep_manager.h inc/mal/k_stdtype.h inc/c_eep_manager.h
+	$(CC) -mprocessor=32MX440F256H -x c -c "src\eeprom_manager\eep_manager_crc.c" -o".\output\eep_manager_crc.o" -MMD -MF".\output\eep_manager_crc.d" -I".\inc" -I".\inc\helix" -I".\inc\tokenize" -I".\inc\mp3" -I".\inc\fatfs" -I".\inc\vs1053" -I".\inc\eeprom" -I".\inc\eeprom_manager" -I".\inc\task" -I".\inc\version" -I".\inc\buffer" -I".\inc\usb" -I".\inc\mal" -I".\inc\spi" -I".\inc\tmr" -g -D_SUPPRESS_PLIB_WARNING -Wall
+
+output/bootloader_interface.o : src/bootloader_interface.c inc/bootloader_interface.h inc/mal/mal.h
+	$(CC) -mprocessor=32MX440F256H -x c -c "src\bootloader_interface.c" -o".\output\bootloader_interface.o" -MMD -MF".\output\bootloader_interface.d" -I".\inc" -I".\inc\helix" -I".\inc\tokenize" -I".\inc\mp3" -I".\inc\fatfs" -I".\inc\vs1053" -I".\inc\eeprom" -I".\inc\eeprom_manager" -I".\inc\task" -I".\inc\version" -I".\inc\buffer" -I".\inc\usb" -I".\inc\mal" -I".\inc\spi" -I".\inc\tmr" -g -D_SUPPRESS_PLIB_WARNING -Wall
+
+output/eeprom.o : src/eeprom/eeprom.c inc/eeprom/eeprom.h inc/eeprom/dee.h inc/mal/k_stdtype.h
+	$(CC) -mprocessor=32MX440F256H -x c -c "src\eeprom\eeprom.c" -o".\output\eeprom.o" -MMD -MF".\output\eeprom.d" -I".\inc" -I".\inc\helix" -I".\inc\tokenize" -I".\inc\mp3" -I".\inc\fatfs" -I".\inc\vs1053" -I".\inc\eeprom" -I".\inc\eeprom_manager" -I".\inc\task" -I".\inc\version" -I".\inc\buffer" -I".\inc\usb" -I".\inc\mal" -I".\inc\spi" -I".\inc\tmr" -g -D_SUPPRESS_PLIB_WARNING -Wall
+
+output/dee_page_helper.o : src/eeprom/dee_page_helper.c inc/eeprom/dee.h inc/mal/k_stdtype.h inc/c_dee.h inc/eeprom/int_dee.h
+	$(CC) -mprocessor=32MX440F256H -x c -c "src\eeprom\dee_page_helper.c" -o".\output\dee_page_helper.o" -MMD -MF".\output\dee_page_helper.d" -I".\inc" -I".\inc\helix" -I".\inc\tokenize" -I".\inc\mp3" -I".\inc\fatfs" -I".\inc\vs1053" -I".\inc\eeprom" -I".\inc\eeprom_manager" -I".\inc\task" -I".\inc\version" -I".\inc\buffer" -I".\inc\usb" -I".\inc\mal" -I".\inc\spi" -I".\inc\tmr" -g -D_SUPPRESS_PLIB_WARNING -Wall
+
+output/dee_page.o : src/eeprom/dee_page.c inc/eeprom/dee.h inc/mal/k_stdtype.h inc/c_dee.h inc/eeprom/int_dee.h inc/mal/mal.h
+	$(CC) -mprocessor=32MX440F256H -x c -c "src\eeprom\dee_page.c" -o".\output\dee_page.o" -MMD -MF".\output\dee_page.d" -I".\inc" -I".\inc\helix" -I".\inc\tokenize" -I".\inc\mp3" -I".\inc\fatfs" -I".\inc\vs1053" -I".\inc\eeprom" -I".\inc\eeprom_manager" -I".\inc\task" -I".\inc\version" -I".\inc\buffer" -I".\inc\usb" -I".\inc\mal" -I".\inc\spi" -I".\inc\tmr" -g -D_SUPPRESS_PLIB_WARNING -Wall
+
+output/dee.o : src/eeprom/dee.c inc/eeprom/dee.h inc/mal/k_stdtype.h inc/c_dee.h inc/eeprom/int_dee.h inc/mal/mal.h
+	$(CC) -mprocessor=32MX440F256H -x c -c "src\eeprom\dee.c" -o".\output\dee.o" -MMD -MF".\output\dee.d" -I".\inc" -I".\inc\helix" -I".\inc\tokenize" -I".\inc\mp3" -I".\inc\fatfs" -I".\inc\vs1053" -I".\inc\eeprom" -I".\inc\eeprom_manager" -I".\inc\task" -I".\inc\version" -I".\inc\buffer" -I".\inc\usb" -I".\inc\mal" -I".\inc\spi" -I".\inc\tmr" -g -D_SUPPRESS_PLIB_WARNING -Wall
+
+output/randomValue.o : src/randomValue.c
+	$(CC) -mprocessor=32MX440F256H -x c -c "src\randomValue.c" -o".\output\randomValue.o" -MMD -MF".\output\randomValue.d" -I".\inc" -I".\inc\helix" -I".\inc\tokenize" -I".\inc\mp3" -I".\inc\fatfs" -I".\inc\vs1053" -I".\inc\eeprom" -I".\inc\eeprom_manager" -I".\inc\task" -I".\inc\version" -I".\inc\buffer" -I".\inc\usb" -I".\inc\mal" -I".\inc\spi" -I".\inc\tmr" -g -D_SUPPRESS_PLIB_WARNING -Wall
+
+output/noinitram.o : src/mal/noinitram.c inc/mal/noinitram.h inc/eeprom_manager/eep_manager.h inc/mal/k_stdtype.h inc/c_eep_manager.h
+	$(CC) -mprocessor=32MX440F256H -x c -c "src\mal\noinitram.c" -o".\output\noinitram.o" -MMD -MF".\output\noinitram.d" -I".\inc" -I".\inc\helix" -I".\inc\tokenize" -I".\inc\mp3" -I".\inc\fatfs" -I".\inc\vs1053" -I".\inc\eeprom" -I".\inc\eeprom_manager" -I".\inc\task" -I".\inc\version" -I".\inc\buffer" -I".\inc\usb" -I".\inc\mal" -I".\inc\spi" -I".\inc\tmr" -g -D_SUPPRESS_PLIB_WARNING -Wall
+
+clean : 
+	$(RM) "output\tmr.o" "output\mal.o" "output\ringBuffer.o" "output\sleep.o" "output\eep_manager.o" "output\usb.o" "output\usb_descriptors.o" "output\usb_device.o" "output\usb_function_hid.o" "output\spi_sw.o" "output\exceptions.o" "output\isr.o" "output\vs1053.o" "output\ff.o" "output\mmc_multiplexer.o" "output\fatfs.o" "output\fatrtc.o" "output\mp3.o" "output\tokenize.o" "output\bitstream.o" "output\buffers.o" "output\dct32.o" "output\dequant.o" "output\dqchan.o" "output\huffman.o" "output\hufftabs.o" "output\imdct.o" "output\mp3dec.o" "output\mp3tabs.o" "output\polyphase.o" "output\scalfact.o" "output\stproc.o" "output\subband.o" "output\trigtabs.o" "output\main.o" "output\io.o" "output\c_eep_manager.o" "output\app.o" "output\ad.o" "output\mmc_sdcard_microchip.o" "output\SD-SPI.o" "output\usb_function_msd.o" "output\eep_manager_crc.o" "output\bootloader_interface.o" "output\eeprom.o" "output\dee_page_helper.o" "output\dee_page.o" "output\dee.o" "output\randomValue.o" "output\noinitram.o" ".\output\pic_mp3_1_0_0.elf" ".\output\pic_mp3_1_0_0.hex"
+
