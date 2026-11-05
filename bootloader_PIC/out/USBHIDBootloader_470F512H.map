@@ -5,111 +5,111 @@ c:/program files/microchip/xc32/v4.20/bin/bin/../../lib/gcc/pic32mx/8.3.1/../../
 c:/program files/microchip/xc32/v4.20/bin/bin/../../lib/gcc/pic32mx/8.3.1/../../../../pic32mx/lib\libpic32.a(memcpy.o)
                               out\Framework.o (memcpy)
 c:/program files/microchip/xc32/v4.20/bin/bin/../../lib/gcc/pic32mx/8.3.1/../../../../pic32mx/lib\libpic32.a(default-bootstrap-exception-handler.o)
-                              C:\Users\kyrk\AppData\Local\Temp\ccie2ft6.o (_bootstrap_exception_handler)
+                              C:\Users\kyrk\AppData\Local\Temp\ccs6EQGv.o (_bootstrap_exception_handler)
 c:/program files/microchip/xc32/v4.20/bin/bin/../../lib/gcc/pic32mx/8.3.1/../../../../pic32mx/lib\libpic32.a(default-on-reset.o)
-                              C:\Users\kyrk\AppData\Local\Temp\ccie2ft6.o (_on_reset)
+                              C:\Users\kyrk\AppData\Local\Temp\ccs6EQGv.o (_on_reset)
 c:/program files/microchip/xc32/v4.20/bin/bin/../../lib/gcc/pic32mx/8.3.1/../../../../pic32mx/lib\libpic32.a(default-on-bootstrap.o)
-                              C:\Users\kyrk\AppData\Local\Temp\ccie2ft6.o (_on_bootstrap)
+                              C:\Users\kyrk\AppData\Local\Temp\ccs6EQGv.o (_on_bootstrap)
 c:/program files/microchip/xc32/v4.20/bin/bin/../../lib/gcc/pic32mx/8.3.1/../../../../pic32mx/lib\libpic32.a(default-nmi-handler.o)
-                              C:\Users\kyrk\AppData\Local\Temp\ccie2ft6.o (_nmi_handler)
+                              C:\Users\kyrk\AppData\Local\Temp\ccs6EQGv.o (_nmi_handler)
 c:/program files/microchip/xc32/v4.20/bin/bin/../../lib/gcc/pic32mx/8.3.1/../../../../pic32mx/lib\libpic32.a(pic32_data_init_wrapper.o)
-                              C:\Users\kyrk\AppData\Local\Temp\ccie2ft6.o (__pic32_data_init)
+                              C:\Users\kyrk\AppData\Local\Temp\ccs6EQGv.o (__pic32_data_init)
 c:/program files/microchip/xc32/v4.20/bin/bin/../../lib/gcc/pic32mx/8.3.1/../../../../pic32mx/lib\libpic32.a(pic32_data_init_0_1.o)
                               (__copy_needed)
 c:/program files/microchip/xc32/v4.20/bin/bin/../../lib/gcc/pic32mx/8.3.1/../../../../pic32mx/lib\libpic32.a(general-exception.o)
-                              C:\Users\kyrk\AppData\Local\Temp\ccie2ft6.o (_general_exception_context)
+                              C:\Users\kyrk\AppData\Local\Temp\ccs6EQGv.o (_general_exception_context)
 c:/program files/microchip/xc32/v4.20/bin/bin/../../lib/gcc/pic32mx/8.3.1/../../../../pic32mx/lib\libpic32.a(vector0.o)
-                              C:\Users\kyrk\AppData\Local\Temp\ccua97Fd.o (__vector_dispatch_0)
+                              C:\Users\kyrk\AppData\Local\Temp\ccE7x1V2.o (__vector_dispatch_0)
 c:/program files/microchip/xc32/v4.20/bin/bin/../../lib/gcc/pic32mx/8.3.1/../../../../pic32mx/lib\libpic32.a(vector1.o)
-                              C:\Users\kyrk\AppData\Local\Temp\ccua97Fd.o (__vector_dispatch_1)
+                              C:\Users\kyrk\AppData\Local\Temp\ccE7x1V2.o (__vector_dispatch_1)
 c:/program files/microchip/xc32/v4.20/bin/bin/../../lib/gcc/pic32mx/8.3.1/../../../../pic32mx/lib\libpic32.a(vector2.o)
-                              C:\Users\kyrk\AppData\Local\Temp\ccua97Fd.o (__vector_dispatch_2)
+                              C:\Users\kyrk\AppData\Local\Temp\ccE7x1V2.o (__vector_dispatch_2)
 c:/program files/microchip/xc32/v4.20/bin/bin/../../lib/gcc/pic32mx/8.3.1/../../../../pic32mx/lib\libpic32.a(vector3.o)
-                              C:\Users\kyrk\AppData\Local\Temp\ccua97Fd.o (__vector_dispatch_3)
+                              C:\Users\kyrk\AppData\Local\Temp\ccE7x1V2.o (__vector_dispatch_3)
 c:/program files/microchip/xc32/v4.20/bin/bin/../../lib/gcc/pic32mx/8.3.1/../../../../pic32mx/lib\libpic32.a(vector4.o)
-                              C:\Users\kyrk\AppData\Local\Temp\ccua97Fd.o (__vector_dispatch_4)
+                              C:\Users\kyrk\AppData\Local\Temp\ccE7x1V2.o (__vector_dispatch_4)
 c:/program files/microchip/xc32/v4.20/bin/bin/../../lib/gcc/pic32mx/8.3.1/../../../../pic32mx/lib\libpic32.a(vector5.o)
-                              C:\Users\kyrk\AppData\Local\Temp\ccua97Fd.o (__vector_dispatch_5)
+                              C:\Users\kyrk\AppData\Local\Temp\ccE7x1V2.o (__vector_dispatch_5)
 c:/program files/microchip/xc32/v4.20/bin/bin/../../lib/gcc/pic32mx/8.3.1/../../../../pic32mx/lib\libpic32.a(vector6.o)
-                              C:\Users\kyrk\AppData\Local\Temp\ccua97Fd.o (__vector_dispatch_6)
+                              C:\Users\kyrk\AppData\Local\Temp\ccE7x1V2.o (__vector_dispatch_6)
 c:/program files/microchip/xc32/v4.20/bin/bin/../../lib/gcc/pic32mx/8.3.1/../../../../pic32mx/lib\libpic32.a(vector7.o)
-                              C:\Users\kyrk\AppData\Local\Temp\ccua97Fd.o (__vector_dispatch_7)
+                              C:\Users\kyrk\AppData\Local\Temp\ccE7x1V2.o (__vector_dispatch_7)
 c:/program files/microchip/xc32/v4.20/bin/bin/../../lib/gcc/pic32mx/8.3.1/../../../../pic32mx/lib\libpic32.a(vector8.o)
-                              C:\Users\kyrk\AppData\Local\Temp\ccua97Fd.o (__vector_dispatch_8)
+                              C:\Users\kyrk\AppData\Local\Temp\ccE7x1V2.o (__vector_dispatch_8)
 c:/program files/microchip/xc32/v4.20/bin/bin/../../lib/gcc/pic32mx/8.3.1/../../../../pic32mx/lib\libpic32.a(vector9.o)
-                              C:\Users\kyrk\AppData\Local\Temp\ccua97Fd.o (__vector_dispatch_9)
+                              C:\Users\kyrk\AppData\Local\Temp\ccE7x1V2.o (__vector_dispatch_9)
 c:/program files/microchip/xc32/v4.20/bin/bin/../../lib/gcc/pic32mx/8.3.1/../../../../pic32mx/lib\libpic32.a(vector10.o)
-                              C:\Users\kyrk\AppData\Local\Temp\ccua97Fd.o (__vector_dispatch_10)
+                              C:\Users\kyrk\AppData\Local\Temp\ccE7x1V2.o (__vector_dispatch_10)
 c:/program files/microchip/xc32/v4.20/bin/bin/../../lib/gcc/pic32mx/8.3.1/../../../../pic32mx/lib\libpic32.a(vector11.o)
-                              C:\Users\kyrk\AppData\Local\Temp\ccua97Fd.o (__vector_dispatch_11)
+                              C:\Users\kyrk\AppData\Local\Temp\ccE7x1V2.o (__vector_dispatch_11)
 c:/program files/microchip/xc32/v4.20/bin/bin/../../lib/gcc/pic32mx/8.3.1/../../../../pic32mx/lib\libpic32.a(vector12.o)
-                              C:\Users\kyrk\AppData\Local\Temp\ccua97Fd.o (__vector_dispatch_12)
+                              C:\Users\kyrk\AppData\Local\Temp\ccE7x1V2.o (__vector_dispatch_12)
 c:/program files/microchip/xc32/v4.20/bin/bin/../../lib/gcc/pic32mx/8.3.1/../../../../pic32mx/lib\libpic32.a(vector13.o)
-                              C:\Users\kyrk\AppData\Local\Temp\ccua97Fd.o (__vector_dispatch_13)
+                              C:\Users\kyrk\AppData\Local\Temp\ccE7x1V2.o (__vector_dispatch_13)
 c:/program files/microchip/xc32/v4.20/bin/bin/../../lib/gcc/pic32mx/8.3.1/../../../../pic32mx/lib\libpic32.a(vector14.o)
-                              C:\Users\kyrk\AppData\Local\Temp\ccua97Fd.o (__vector_dispatch_14)
+                              C:\Users\kyrk\AppData\Local\Temp\ccE7x1V2.o (__vector_dispatch_14)
 c:/program files/microchip/xc32/v4.20/bin/bin/../../lib/gcc/pic32mx/8.3.1/../../../../pic32mx/lib\libpic32.a(vector15.o)
-                              C:\Users\kyrk\AppData\Local\Temp\ccua97Fd.o (__vector_dispatch_15)
+                              C:\Users\kyrk\AppData\Local\Temp\ccE7x1V2.o (__vector_dispatch_15)
 c:/program files/microchip/xc32/v4.20/bin/bin/../../lib/gcc/pic32mx/8.3.1/../../../../pic32mx/lib\libpic32.a(vector16.o)
-                              C:\Users\kyrk\AppData\Local\Temp\ccua97Fd.o (__vector_dispatch_16)
+                              C:\Users\kyrk\AppData\Local\Temp\ccE7x1V2.o (__vector_dispatch_16)
 c:/program files/microchip/xc32/v4.20/bin/bin/../../lib/gcc/pic32mx/8.3.1/../../../../pic32mx/lib\libpic32.a(vector17.o)
-                              C:\Users\kyrk\AppData\Local\Temp\ccua97Fd.o (__vector_dispatch_17)
+                              C:\Users\kyrk\AppData\Local\Temp\ccE7x1V2.o (__vector_dispatch_17)
 c:/program files/microchip/xc32/v4.20/bin/bin/../../lib/gcc/pic32mx/8.3.1/../../../../pic32mx/lib\libpic32.a(vector18.o)
-                              C:\Users\kyrk\AppData\Local\Temp\ccua97Fd.o (__vector_dispatch_18)
+                              C:\Users\kyrk\AppData\Local\Temp\ccE7x1V2.o (__vector_dispatch_18)
 c:/program files/microchip/xc32/v4.20/bin/bin/../../lib/gcc/pic32mx/8.3.1/../../../../pic32mx/lib\libpic32.a(vector19.o)
-                              C:\Users\kyrk\AppData\Local\Temp\ccua97Fd.o (__vector_dispatch_19)
+                              C:\Users\kyrk\AppData\Local\Temp\ccE7x1V2.o (__vector_dispatch_19)
 c:/program files/microchip/xc32/v4.20/bin/bin/../../lib/gcc/pic32mx/8.3.1/../../../../pic32mx/lib\libpic32.a(vector20.o)
-                              C:\Users\kyrk\AppData\Local\Temp\ccua97Fd.o (__vector_dispatch_20)
+                              C:\Users\kyrk\AppData\Local\Temp\ccE7x1V2.o (__vector_dispatch_20)
 c:/program files/microchip/xc32/v4.20/bin/bin/../../lib/gcc/pic32mx/8.3.1/../../../../pic32mx/lib\libpic32.a(vector21.o)
-                              C:\Users\kyrk\AppData\Local\Temp\ccua97Fd.o (__vector_dispatch_21)
+                              C:\Users\kyrk\AppData\Local\Temp\ccE7x1V2.o (__vector_dispatch_21)
 c:/program files/microchip/xc32/v4.20/bin/bin/../../lib/gcc/pic32mx/8.3.1/../../../../pic32mx/lib\libpic32.a(vector22.o)
-                              C:\Users\kyrk\AppData\Local\Temp\ccua97Fd.o (__vector_dispatch_22)
+                              C:\Users\kyrk\AppData\Local\Temp\ccE7x1V2.o (__vector_dispatch_22)
 c:/program files/microchip/xc32/v4.20/bin/bin/../../lib/gcc/pic32mx/8.3.1/../../../../pic32mx/lib\libpic32.a(vector23.o)
-                              C:\Users\kyrk\AppData\Local\Temp\ccua97Fd.o (__vector_dispatch_23)
+                              C:\Users\kyrk\AppData\Local\Temp\ccE7x1V2.o (__vector_dispatch_23)
 c:/program files/microchip/xc32/v4.20/bin/bin/../../lib/gcc/pic32mx/8.3.1/../../../../pic32mx/lib\libpic32.a(vector24.o)
-                              C:\Users\kyrk\AppData\Local\Temp\ccua97Fd.o (__vector_dispatch_24)
+                              C:\Users\kyrk\AppData\Local\Temp\ccE7x1V2.o (__vector_dispatch_24)
 c:/program files/microchip/xc32/v4.20/bin/bin/../../lib/gcc/pic32mx/8.3.1/../../../../pic32mx/lib\libpic32.a(vector25.o)
-                              C:\Users\kyrk\AppData\Local\Temp\ccua97Fd.o (__vector_dispatch_25)
+                              C:\Users\kyrk\AppData\Local\Temp\ccE7x1V2.o (__vector_dispatch_25)
 c:/program files/microchip/xc32/v4.20/bin/bin/../../lib/gcc/pic32mx/8.3.1/../../../../pic32mx/lib\libpic32.a(vector26.o)
-                              C:\Users\kyrk\AppData\Local\Temp\ccua97Fd.o (__vector_dispatch_26)
+                              C:\Users\kyrk\AppData\Local\Temp\ccE7x1V2.o (__vector_dispatch_26)
 c:/program files/microchip/xc32/v4.20/bin/bin/../../lib/gcc/pic32mx/8.3.1/../../../../pic32mx/lib\libpic32.a(vector27.o)
-                              C:\Users\kyrk\AppData\Local\Temp\ccua97Fd.o (__vector_dispatch_27)
+                              C:\Users\kyrk\AppData\Local\Temp\ccE7x1V2.o (__vector_dispatch_27)
 c:/program files/microchip/xc32/v4.20/bin/bin/../../lib/gcc/pic32mx/8.3.1/../../../../pic32mx/lib\libpic32.a(vector28.o)
-                              C:\Users\kyrk\AppData\Local\Temp\ccua97Fd.o (__vector_dispatch_28)
+                              C:\Users\kyrk\AppData\Local\Temp\ccE7x1V2.o (__vector_dispatch_28)
 c:/program files/microchip/xc32/v4.20/bin/bin/../../lib/gcc/pic32mx/8.3.1/../../../../pic32mx/lib\libpic32.a(vector29.o)
-                              C:\Users\kyrk\AppData\Local\Temp\ccua97Fd.o (__vector_dispatch_29)
+                              C:\Users\kyrk\AppData\Local\Temp\ccE7x1V2.o (__vector_dispatch_29)
 c:/program files/microchip/xc32/v4.20/bin/bin/../../lib/gcc/pic32mx/8.3.1/../../../../pic32mx/lib\libpic32.a(vector30.o)
-                              C:\Users\kyrk\AppData\Local\Temp\ccua97Fd.o (__vector_dispatch_30)
+                              C:\Users\kyrk\AppData\Local\Temp\ccE7x1V2.o (__vector_dispatch_30)
 c:/program files/microchip/xc32/v4.20/bin/bin/../../lib/gcc/pic32mx/8.3.1/../../../../pic32mx/lib\libpic32.a(vector31.o)
-                              C:\Users\kyrk\AppData\Local\Temp\ccua97Fd.o (__vector_dispatch_31)
+                              C:\Users\kyrk\AppData\Local\Temp\ccE7x1V2.o (__vector_dispatch_31)
 c:/program files/microchip/xc32/v4.20/bin/bin/../../lib/gcc/pic32mx/8.3.1/../../../../pic32mx/lib\libpic32.a(vector32.o)
-                              C:\Users\kyrk\AppData\Local\Temp\ccua97Fd.o (__vector_dispatch_32)
+                              C:\Users\kyrk\AppData\Local\Temp\ccE7x1V2.o (__vector_dispatch_32)
 c:/program files/microchip/xc32/v4.20/bin/bin/../../lib/gcc/pic32mx/8.3.1/../../../../pic32mx/lib\libpic32.a(vector33.o)
-                              C:\Users\kyrk\AppData\Local\Temp\ccua97Fd.o (__vector_dispatch_33)
+                              C:\Users\kyrk\AppData\Local\Temp\ccE7x1V2.o (__vector_dispatch_33)
 c:/program files/microchip/xc32/v4.20/bin/bin/../../lib/gcc/pic32mx/8.3.1/../../../../pic32mx/lib\libpic32.a(vector34.o)
-                              C:\Users\kyrk\AppData\Local\Temp\ccua97Fd.o (__vector_dispatch_34)
+                              C:\Users\kyrk\AppData\Local\Temp\ccE7x1V2.o (__vector_dispatch_34)
 c:/program files/microchip/xc32/v4.20/bin/bin/../../lib/gcc/pic32mx/8.3.1/../../../../pic32mx/lib\libpic32.a(vector35.o)
-                              C:\Users\kyrk\AppData\Local\Temp\ccua97Fd.o (__vector_dispatch_35)
+                              C:\Users\kyrk\AppData\Local\Temp\ccE7x1V2.o (__vector_dispatch_35)
 c:/program files/microchip/xc32/v4.20/bin/bin/../../lib/gcc/pic32mx/8.3.1/../../../../pic32mx/lib\libpic32.a(vector36.o)
-                              C:\Users\kyrk\AppData\Local\Temp\ccua97Fd.o (__vector_dispatch_36)
+                              C:\Users\kyrk\AppData\Local\Temp\ccE7x1V2.o (__vector_dispatch_36)
 c:/program files/microchip/xc32/v4.20/bin/bin/../../lib/gcc/pic32mx/8.3.1/../../../../pic32mx/lib\libpic32.a(vector37.o)
-                              C:\Users\kyrk\AppData\Local\Temp\ccua97Fd.o (__vector_dispatch_37)
+                              C:\Users\kyrk\AppData\Local\Temp\ccE7x1V2.o (__vector_dispatch_37)
 c:/program files/microchip/xc32/v4.20/bin/bin/../../lib/gcc/pic32mx/8.3.1/../../../../pic32mx/lib\libpic32.a(vector38.o)
-                              C:\Users\kyrk\AppData\Local\Temp\ccua97Fd.o (__vector_dispatch_38)
+                              C:\Users\kyrk\AppData\Local\Temp\ccE7x1V2.o (__vector_dispatch_38)
 c:/program files/microchip/xc32/v4.20/bin/bin/../../lib/gcc/pic32mx/8.3.1/../../../../pic32mx/lib\libpic32.a(vector39.o)
-                              C:\Users\kyrk\AppData\Local\Temp\ccua97Fd.o (__vector_dispatch_39)
+                              C:\Users\kyrk\AppData\Local\Temp\ccE7x1V2.o (__vector_dispatch_39)
 c:/program files/microchip/xc32/v4.20/bin/bin/../../lib/gcc/pic32mx/8.3.1/../../../../pic32mx/lib\libpic32.a(vector40.o)
-                              C:\Users\kyrk\AppData\Local\Temp\ccua97Fd.o (__vector_dispatch_40)
+                              C:\Users\kyrk\AppData\Local\Temp\ccE7x1V2.o (__vector_dispatch_40)
 c:/program files/microchip/xc32/v4.20/bin/bin/../../lib/gcc/pic32mx/8.3.1/../../../../pic32mx/lib\libpic32.a(vector41.o)
-                              C:\Users\kyrk\AppData\Local\Temp\ccua97Fd.o (__vector_dispatch_41)
+                              C:\Users\kyrk\AppData\Local\Temp\ccE7x1V2.o (__vector_dispatch_41)
 c:/program files/microchip/xc32/v4.20/bin/bin/../../lib/gcc/pic32mx/8.3.1/../../../../pic32mx/lib\libpic32.a(vector42.o)
-                              C:\Users\kyrk\AppData\Local\Temp\ccua97Fd.o (__vector_dispatch_42)
+                              C:\Users\kyrk\AppData\Local\Temp\ccE7x1V2.o (__vector_dispatch_42)
 c:/program files/microchip/xc32/v4.20/bin/bin/../../lib/gcc/pic32mx/8.3.1/../../../../pic32mx/lib\libpic32.a(vector43.o)
-                              C:\Users\kyrk\AppData\Local\Temp\ccua97Fd.o (__vector_dispatch_43)
+                              C:\Users\kyrk\AppData\Local\Temp\ccE7x1V2.o (__vector_dispatch_43)
 c:/program files/microchip/xc32/v4.20/bin/bin/../../lib/gcc/pic32mx/8.3.1/../../../../pic32mx/lib\libpic32.a(vector44.o)
-                              C:\Users\kyrk\AppData\Local\Temp\ccua97Fd.o (__vector_dispatch_44)
+                              C:\Users\kyrk\AppData\Local\Temp\ccE7x1V2.o (__vector_dispatch_44)
 c:/program files/microchip/xc32/v4.20/bin/bin/../../lib/gcc/pic32mx/8.3.1/../../../../pic32mx/lib\libpic32.a(vector45.o)
-                              C:\Users\kyrk\AppData\Local\Temp\ccua97Fd.o (__vector_dispatch_45)
+                              C:\Users\kyrk\AppData\Local\Temp\ccE7x1V2.o (__vector_dispatch_45)
 c:/program files/microchip/xc32/v4.20/bin/bin/../../lib/gcc/pic32mx/8.3.1/../../../../pic32mx/lib\libpic32.a(default-general-exception-handler.o)
                               c:/program files/microchip/xc32/v4.20/bin/bin/../../lib/gcc/pic32mx/8.3.1/../../../../pic32mx/lib\libpic32.a(general-exception.o) (_general_exception_handler)
 c:/program files/microchip/xc32/v4.20/bin/bin/../../lib/gcc/pic32mx/8.3.1/../../../../pic32mx/lib\libpic32.a(defaultinterrupt.o)
@@ -319,16 +319,16 @@ Discarded input sections
  .MIPS.abiflags
                 0x0000000000000000       0x18 c:/program files/microchip/xc32/v4.20/bin/bin/../../lib/gcc/pic32mx/8.3.1/../../../../pic32mx/lib/./proc/32MX470F512H\processor.o
  .reginfo       0x0000000000000000       0x18 c:/program files/microchip/xc32/v4.20/bin/bin/../../lib/gcc/pic32mx/8.3.1/../../../../pic32mx/lib\libmchp_peripheral_32MX470F512H.a(int_tbl_lib.o)
- .reginfo       0x0000000000000000       0x18 C:\Users\kyrk\AppData\Local\Temp\ccie2ft6.o
+ .reginfo       0x0000000000000000       0x18 C:\Users\kyrk\AppData\Local\Temp\ccs6EQGv.o
  .MIPS.abiflags
-                0x0000000000000000       0x18 C:\Users\kyrk\AppData\Local\Temp\ccie2ft6.o
- .reginfo       0x0000000000000000       0x18 C:\Users\kyrk\AppData\Local\Temp\cc61E348.o
+                0x0000000000000000       0x18 C:\Users\kyrk\AppData\Local\Temp\ccs6EQGv.o
+ .reginfo       0x0000000000000000       0x18 C:\Users\kyrk\AppData\Local\Temp\ccNr92ne.o
  .MIPS.abiflags
-                0x0000000000000000       0x18 C:\Users\kyrk\AppData\Local\Temp\cc61E348.o
- .reginfo       0x0000000000000000       0x18 C:\Users\kyrk\AppData\Local\Temp\ccua97Fd.o
+                0x0000000000000000       0x18 C:\Users\kyrk\AppData\Local\Temp\ccNr92ne.o
+ .reginfo       0x0000000000000000       0x18 C:\Users\kyrk\AppData\Local\Temp\ccE7x1V2.o
  .MIPS.abiflags
-                0x0000000000000000       0x18 C:\Users\kyrk\AppData\Local\Temp\ccua97Fd.o
- .discard       0x0000000000000000       0xb8 C:\Users\kyrk\AppData\Local\Temp\ccua97Fd.o
+                0x0000000000000000       0x18 C:\Users\kyrk\AppData\Local\Temp\ccE7x1V2.o
+ .discard       0x0000000000000000       0xb8 C:\Users\kyrk\AppData\Local\Temp\ccE7x1V2.o
  .reginfo       0x0000000000000000       0x18 c:/program files/microchip/xc32/v4.20/bin/bin/../../lib/gcc/pic32mx/8.3.1/../../../../pic32mx/lib/./proc/32MX470F512H\default_isr_vectors.o
  .MIPS.abiflags
                 0x0000000000000000       0x18 c:/program files/microchip/xc32/v4.20/bin/bin/../../lib/gcc/pic32mx/8.3.1/../../../../pic32mx/lib/./proc/32MX470F512H\default_isr_vectors.o
@@ -810,16 +810,16 @@ END GROUP
 
 .reset          0x00000000bfc00000      0x19c
  *(.reset)
- .reset         0x00000000bfc00000        0x8 C:\Users\kyrk\AppData\Local\Temp\ccie2ft6.o
+ .reset         0x00000000bfc00000        0x8 C:\Users\kyrk\AppData\Local\Temp\ccs6EQGv.o
                 0x00000000bfc00000                _reset
  *(.reset.startup)
  .reset.startup
-                0x00000000bfc00008      0x194 C:\Users\kyrk\AppData\Local\Temp\ccie2ft6.o
+                0x00000000bfc00008      0x194 C:\Users\kyrk\AppData\Local\Temp\ccs6EQGv.o
                 0x00000000bfc00008                _startup
 
 .bev_excpt      0x00000000bfc00380       0x10
  *(.bev_handler)
- .bev_handler   0x00000000bfc00380       0x10 C:\Users\kyrk\AppData\Local\Temp\ccie2ft6.o
+ .bev_handler   0x00000000bfc00380       0x10 C:\Users\kyrk\AppData\Local\Temp\ccs6EQGv.o
 
 .dbg_excpt      0x00000000bfc00480        0x0
                 0x00000000bfc00480                . = (. + DEFINED (_DEBUGGER)?0x8:0x0)
@@ -829,7 +829,7 @@ END GROUP
 
 .app_excpt      0x000000009fc01180       0x10
  *(.gen_handler)
- .gen_handler   0x000000009fc01180       0x10 C:\Users\kyrk\AppData\Local\Temp\ccie2ft6.o
+ .gen_handler   0x000000009fc01180       0x10 C:\Users\kyrk\AppData\Local\Temp\ccs6EQGv.o
 
 .vector_0       0x000000009fc01200        0x8
  *(.vector_0)
@@ -1540,21 +1540,21 @@ END GROUP
  .debug_abbrev  0x000000000000158c       0x31 c:/program files/microchip/xc32/v4.20/bin/bin/../../lib/gcc/pic32mx/8.3.1/../../../../pic32mx/lib\libpic32.a(default-general-exception-handler.o)
  .debug_abbrev  0x00000000000015bd       0x31 c:/program files/microchip/xc32/v4.20/bin/bin/../../lib/gcc/pic32mx/8.3.1/../../../../pic32mx/lib\libpic32.a(defaultinterrupt.o)
 
-.debug_line     0x0000000000000000     0x2d6d
+.debug_line     0x0000000000000000     0x2d8b
  *(.debug_line)
- .debug_line    0x0000000000000000      0x747 out\BootLoader.o
- .debug_line    0x0000000000000747      0x776 out\Framework.o
- .debug_line    0x0000000000000ebd      0x333 out\NVMem.o
- .debug_line    0x00000000000011f0       0xee out\usb_descriptors.o
- .debug_line    0x00000000000012de     0x11f4 out\usb_device.o
- .debug_line    0x00000000000024d2      0x1c5 out\usb_function_hid.o
- .debug_line    0x0000000000002697      0x2ca out\Usb_HID_tasks.o
- .debug_line    0x0000000000002961       0x61 c:/program files/microchip/xc32/v4.20/bin/bin/../../lib/gcc/pic32mx/8.3.1/../../../../pic32mx/lib\libmchp_peripheral_32MX470F512H.a(int_tbl_lib.o)
- .debug_line    0x00000000000029c2       0xca c:/program files/microchip/xc32/v4.20/bin/bin/../../lib/gcc/pic32mx/8.3.1/../../../../pic32mx/lib\libpic32.a(default-bootstrap-exception-handler.o)
- .debug_line    0x0000000000002a8c       0xa6 c:/program files/microchip/xc32/v4.20/bin/bin/../../lib/gcc/pic32mx/8.3.1/../../../../pic32mx/lib\libpic32.a(default-on-reset.o)
- .debug_line    0x0000000000002b32       0xaa c:/program files/microchip/xc32/v4.20/bin/bin/../../lib/gcc/pic32mx/8.3.1/../../../../pic32mx/lib\libpic32.a(default-on-bootstrap.o)
- .debug_line    0x0000000000002bdc       0xc8 c:/program files/microchip/xc32/v4.20/bin/bin/../../lib/gcc/pic32mx/8.3.1/../../../../pic32mx/lib\libpic32.a(default-general-exception-handler.o)
- .debug_line    0x0000000000002ca4       0xc9 c:/program files/microchip/xc32/v4.20/bin/bin/../../lib/gcc/pic32mx/8.3.1/../../../../pic32mx/lib\libpic32.a(defaultinterrupt.o)
+ .debug_line    0x0000000000000000      0x74b out\BootLoader.o
+ .debug_line    0x000000000000074b      0x77c out\Framework.o
+ .debug_line    0x0000000000000ec7      0x337 out\NVMem.o
+ .debug_line    0x00000000000011fe       0xf2 out\usb_descriptors.o
+ .debug_line    0x00000000000012f0     0x11f8 out\usb_device.o
+ .debug_line    0x00000000000024e8      0x1c9 out\usb_function_hid.o
+ .debug_line    0x00000000000026b1      0x2ce out\Usb_HID_tasks.o
+ .debug_line    0x000000000000297f       0x61 c:/program files/microchip/xc32/v4.20/bin/bin/../../lib/gcc/pic32mx/8.3.1/../../../../pic32mx/lib\libmchp_peripheral_32MX470F512H.a(int_tbl_lib.o)
+ .debug_line    0x00000000000029e0       0xca c:/program files/microchip/xc32/v4.20/bin/bin/../../lib/gcc/pic32mx/8.3.1/../../../../pic32mx/lib\libpic32.a(default-bootstrap-exception-handler.o)
+ .debug_line    0x0000000000002aaa       0xa6 c:/program files/microchip/xc32/v4.20/bin/bin/../../lib/gcc/pic32mx/8.3.1/../../../../pic32mx/lib\libpic32.a(default-on-reset.o)
+ .debug_line    0x0000000000002b50       0xaa c:/program files/microchip/xc32/v4.20/bin/bin/../../lib/gcc/pic32mx/8.3.1/../../../../pic32mx/lib\libpic32.a(default-on-bootstrap.o)
+ .debug_line    0x0000000000002bfa       0xc8 c:/program files/microchip/xc32/v4.20/bin/bin/../../lib/gcc/pic32mx/8.3.1/../../../../pic32mx/lib\libpic32.a(default-general-exception-handler.o)
+ .debug_line    0x0000000000002cc2       0xc9 c:/program files/microchip/xc32/v4.20/bin/bin/../../lib/gcc/pic32mx/8.3.1/../../../../pic32mx/lib\libpic32.a(defaultinterrupt.o)
 
 .debug_frame    0x0000000000000000      0x608
  *(.debug_frame)
@@ -1571,21 +1571,21 @@ END GROUP
  .debug_frame   0x00000000000005bc       0x2c c:/program files/microchip/xc32/v4.20/bin/bin/../../lib/gcc/pic32mx/8.3.1/../../../../pic32mx/lib\libpic32.a(default-general-exception-handler.o)
  .debug_frame   0x00000000000005e8       0x20 c:/program files/microchip/xc32/v4.20/bin/bin/../../lib/gcc/pic32mx/8.3.1/../../../../pic32mx/lib\libpic32.a(defaultinterrupt.o)
 
-.debug_str      0x0000000000000000     0x4839
+.debug_str      0x0000000000000000     0x4847
  *(.debug_str)
- .debug_str     0x0000000000000000      0x689 out\BootLoader.o
- .debug_str     0x0000000000000689      0x569 out\Framework.o
- .debug_str     0x0000000000000bf2      0x3aa out\NVMem.o
- .debug_str     0x0000000000000f9c      0x5e1 out\usb_descriptors.o
- .debug_str     0x000000000000157d     0x1316 out\usb_device.o
- .debug_str     0x0000000000002893      0x6c6 out\usb_function_hid.o
- .debug_str     0x0000000000002f59      0x7f5 out\Usb_HID_tasks.o
- .debug_str     0x000000000000374e        0x0 c:/program files/microchip/xc32/v4.20/bin/bin/../../lib/gcc/pic32mx/8.3.1/../../../../pic32mx/lib\libmchp_peripheral_32MX470F512H.a(int_tbl_lib.o)
- .debug_str     0x000000000000374e      0x373 c:/program files/microchip/xc32/v4.20/bin/bin/../../lib/gcc/pic32mx/8.3.1/../../../../pic32mx/lib\libpic32.a(default-bootstrap-exception-handler.o)
- .debug_str     0x0000000000003ac1      0x34d c:/program files/microchip/xc32/v4.20/bin/bin/../../lib/gcc/pic32mx/8.3.1/../../../../pic32mx/lib\libpic32.a(default-on-reset.o)
- .debug_str     0x0000000000003e0e      0x355 c:/program files/microchip/xc32/v4.20/bin/bin/../../lib/gcc/pic32mx/8.3.1/../../../../pic32mx/lib\libpic32.a(default-on-bootstrap.o)
- .debug_str     0x0000000000004163      0x36f c:/program files/microchip/xc32/v4.20/bin/bin/../../lib/gcc/pic32mx/8.3.1/../../../../pic32mx/lib\libpic32.a(default-general-exception-handler.o)
- .debug_str     0x00000000000044d2      0x367 c:/program files/microchip/xc32/v4.20/bin/bin/../../lib/gcc/pic32mx/8.3.1/../../../../pic32mx/lib\libpic32.a(defaultinterrupt.o)
+ .debug_str     0x0000000000000000      0x68b out\BootLoader.o
+ .debug_str     0x000000000000068b      0x56b out\Framework.o
+ .debug_str     0x0000000000000bf6      0x3ac out\NVMem.o
+ .debug_str     0x0000000000000fa2      0x5e3 out\usb_descriptors.o
+ .debug_str     0x0000000000001585     0x1318 out\usb_device.o
+ .debug_str     0x000000000000289d      0x6c8 out\usb_function_hid.o
+ .debug_str     0x0000000000002f65      0x7f7 out\Usb_HID_tasks.o
+ .debug_str     0x000000000000375c        0x0 c:/program files/microchip/xc32/v4.20/bin/bin/../../lib/gcc/pic32mx/8.3.1/../../../../pic32mx/lib\libmchp_peripheral_32MX470F512H.a(int_tbl_lib.o)
+ .debug_str     0x000000000000375c      0x373 c:/program files/microchip/xc32/v4.20/bin/bin/../../lib/gcc/pic32mx/8.3.1/../../../../pic32mx/lib\libpic32.a(default-bootstrap-exception-handler.o)
+ .debug_str     0x0000000000003acf      0x34d c:/program files/microchip/xc32/v4.20/bin/bin/../../lib/gcc/pic32mx/8.3.1/../../../../pic32mx/lib\libpic32.a(default-on-reset.o)
+ .debug_str     0x0000000000003e1c      0x355 c:/program files/microchip/xc32/v4.20/bin/bin/../../lib/gcc/pic32mx/8.3.1/../../../../pic32mx/lib\libpic32.a(default-on-bootstrap.o)
+ .debug_str     0x0000000000004171      0x36f c:/program files/microchip/xc32/v4.20/bin/bin/../../lib/gcc/pic32mx/8.3.1/../../../../pic32mx/lib\libpic32.a(default-general-exception-handler.o)
+ .debug_str     0x00000000000044e0      0x367 c:/program files/microchip/xc32/v4.20/bin/bin/../../lib/gcc/pic32mx/8.3.1/../../../../pic32mx/lib\libpic32.a(defaultinterrupt.o)
 
 .debug_loc      0x0000000000000000     0x16f5
  *(.debug_loc)
@@ -1652,11 +1652,11 @@ END GROUP
  .gnu.attributes
                 0x0000000000000090       0x10 c:/program files/microchip/xc32/v4.20/bin/bin/../../lib/gcc/pic32mx/8.3.1/../../../../pic32mx/lib\libmchp_peripheral_32MX470F512H.a(int_tbl_lib.o)
  .gnu.attributes
-                0x00000000000000a0       0x10 C:\Users\kyrk\AppData\Local\Temp\ccie2ft6.o
+                0x00000000000000a0       0x10 C:\Users\kyrk\AppData\Local\Temp\ccs6EQGv.o
  .gnu.attributes
-                0x00000000000000b0       0x10 C:\Users\kyrk\AppData\Local\Temp\cc61E348.o
+                0x00000000000000b0       0x10 C:\Users\kyrk\AppData\Local\Temp\ccNr92ne.o
  .gnu.attributes
-                0x00000000000000c0       0x10 C:\Users\kyrk\AppData\Local\Temp\ccua97Fd.o
+                0x00000000000000c0       0x10 C:\Users\kyrk\AppData\Local\Temp\ccE7x1V2.o
  .gnu.attributes
                 0x00000000000000d0       0x10 c:/program files/microchip/xc32/v4.20/bin/bin/../../lib/gcc/pic32mx/8.3.1/../../../../pic32mx/lib/./proc/32MX470F512H\default_isr_vectors.o
  .gnu.attributes
@@ -1774,9 +1774,9 @@ END GROUP
  .gnu.attributes
                 0x0000000000000460       0x10 c:/program files/microchip/xc32/v4.20/bin/bin/../../lib/gcc/pic32mx/8.3.1/../../../../pic32mx/lib\libpic32.a(defaultinterrupt.o)
                 0x0000000000000001                __MPLAB_BUILD = 0x1
-LOAD C:\Users\kyrk\AppData\Local\Temp\ccie2ft6.o
-LOAD C:\Users\kyrk\AppData\Local\Temp\cc61E348.o
-LOAD C:\Users\kyrk\AppData\Local\Temp\ccua97Fd.o
+LOAD C:\Users\kyrk\AppData\Local\Temp\ccs6EQGv.o
+LOAD C:\Users\kyrk\AppData\Local\Temp\ccNr92ne.o
+LOAD C:\Users\kyrk\AppData\Local\Temp\ccE7x1V2.o
 LOAD c:/program files/microchip/xc32/v4.20/bin/bin/../../lib/gcc/pic32mx/8.3.1/../../../../pic32mx/lib/./proc/32MX470F512H\default_isr_vectors.o
 LOAD c:/program files/microchip/xc32/v4.20/bin/bin/../../lib/gcc/pic32mx/8.3.1/../../../../pic32mx/lib\pic32_software_reset.o
 LOAD c:/program files/microchip/xc32/v4.20/bin/bin/../../lib/gcc/pic32mx/8.3.1\libgcc.a
@@ -2018,13 +2018,13 @@ LOAD data_init
  .data          0x0000000000000000        0x0 c:/program files/microchip/xc32/v4.20/bin/bin/../../lib/gcc/pic32mx/8.3.1/../../../../pic32mx/lib/./proc/32MX470F512H\default_isr_vectors.o
 
 .data%z59       0x0000000000000000        0x0
- .data          0x0000000000000000        0x0 C:\Users\kyrk\AppData\Local\Temp\ccua97Fd.o
+ .data          0x0000000000000000        0x0 C:\Users\kyrk\AppData\Local\Temp\ccE7x1V2.o
 
 .data%z60       0x0000000000000000        0x0
- .data          0x0000000000000000        0x0 C:\Users\kyrk\AppData\Local\Temp\cc61E348.o
+ .data          0x0000000000000000        0x0 C:\Users\kyrk\AppData\Local\Temp\ccNr92ne.o
 
 .data%z61       0x0000000000000000        0x0
- .data          0x0000000000000000        0x0 C:\Users\kyrk\AppData\Local\Temp\ccie2ft6.o
+ .data          0x0000000000000000        0x0 C:\Users\kyrk\AppData\Local\Temp\ccs6EQGv.o
 
 .data%z62       0x0000000000000000        0x0
  .data          0x0000000000000000        0x0 c:/program files/microchip/xc32/v4.20/bin/bin/../../lib/gcc/pic32mx/8.3.1/../../../../pic32mx/lib\libmchp_peripheral_32MX470F512H.a(int_tbl_lib.o)
@@ -2235,13 +2235,13 @@ LOAD data_init
  .bss           0x0000000000000000        0x0 c:/program files/microchip/xc32/v4.20/bin/bin/../../lib/gcc/pic32mx/8.3.1/../../../../pic32mx/lib/./proc/32MX470F512H\default_isr_vectors.o
 
 .bss%z130       0x0000000000000000        0x0
- .bss           0x0000000000000000        0x0 C:\Users\kyrk\AppData\Local\Temp\ccua97Fd.o
+ .bss           0x0000000000000000        0x0 C:\Users\kyrk\AppData\Local\Temp\ccE7x1V2.o
 
 .bss%z131       0x0000000000000000        0x0
- .bss           0x0000000000000000        0x0 C:\Users\kyrk\AppData\Local\Temp\cc61E348.o
+ .bss           0x0000000000000000        0x0 C:\Users\kyrk\AppData\Local\Temp\ccNr92ne.o
 
 .bss%z132       0x0000000000000000        0x0
- .bss           0x0000000000000000        0x0 C:\Users\kyrk\AppData\Local\Temp\ccie2ft6.o
+ .bss           0x0000000000000000        0x0 C:\Users\kyrk\AppData\Local\Temp\ccs6EQGv.o
 
 .bss%z133       0x0000000000000000        0x0
  .bss           0x0000000000000000        0x0 c:/program files/microchip/xc32/v4.20/bin/bin/../../lib/gcc/pic32mx/8.3.1/../../../../pic32mx/lib\libmchp_peripheral_32MX470F512H.a(int_tbl_lib.o)
@@ -2375,7 +2375,7 @@ LOAD data_init
 .text.main_entry
                 0x000000009d0031c8       0x54
  .text.main_entry
-                0x000000009d0031c8       0x54 C:\Users\kyrk\AppData\Local\Temp\ccie2ft6.o
+                0x000000009d0031c8       0x54 C:\Users\kyrk\AppData\Local\Temp\ccs6EQGv.o
                 0x000000009d0031fc                __crt0_exit
 
 .text._bootstrap_exception_handler
@@ -2653,13 +2653,13 @@ LOAD data_init
  .text          0x0000000000000000        0x0 c:/program files/microchip/xc32/v4.20/bin/bin/../../lib/gcc/pic32mx/8.3.1/../../../../pic32mx/lib/./proc/32MX470F512H\default_isr_vectors.o
 
 .text%z196      0x0000000000000000        0x0
- .text          0x0000000000000000        0x0 C:\Users\kyrk\AppData\Local\Temp\ccua97Fd.o
+ .text          0x0000000000000000        0x0 C:\Users\kyrk\AppData\Local\Temp\ccE7x1V2.o
 
 .text%z197      0x0000000000000000        0x0
- .text          0x0000000000000000        0x0 C:\Users\kyrk\AppData\Local\Temp\cc61E348.o
+ .text          0x0000000000000000        0x0 C:\Users\kyrk\AppData\Local\Temp\ccNr92ne.o
 
 .text%z198      0x0000000000000000        0x0
- .text          0x0000000000000000        0x0 C:\Users\kyrk\AppData\Local\Temp\ccie2ft6.o
+ .text          0x0000000000000000        0x0 C:\Users\kyrk\AppData\Local\Temp\ccs6EQGv.o
 
 .text%z199      0x0000000000000000        0x0
  .text          0x0000000000000000        0x0 c:/program files/microchip/xc32/v4.20/bin/bin/../../lib/gcc/pic32mx/8.3.1/../../../../pic32mx/lib\libmchp_peripheral_32MX470F512H.a(int_tbl_lib.o)

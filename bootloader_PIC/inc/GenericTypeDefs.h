@@ -291,7 +291,7 @@ typedef union _QWORD_VAL
 
 //TODO: (DF) had to remove these functions based on C18 requirements for non-inline usage
     #if !defined(__18CXX)
-        extern inline DWORD __attribute__ ((always_inline)) _arrayToDword(BYTE *array)
+        static inline DWORD __attribute__ ((always_inline)) _arrayToDword(BYTE *array)
         {
             DWORD_VAL   data;
         
@@ -303,7 +303,7 @@ typedef union _QWORD_VAL
             return data.Val;
         }
         
-        extern inline void __attribute__ ((always_inline)) _dwordToArray(DWORD data, BYTE *array)
+        static inline void __attribute__ ((always_inline)) _dwordToArray(DWORD data, BYTE *array)
         {
             DWORD_VAL   temp;
         
