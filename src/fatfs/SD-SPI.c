@@ -116,38 +116,78 @@
 	#define spi_calculate_BRG spi_sw_calculate_BRG
 	#define spi_lock spi_sw_lock
 	#define spi_unlock spi_sw_unlock
-	#define spi_reconfigure spi_sw_reconfigure
+	#define spi_reconfigure_mode spi_sw_reconfigure_mode
 	#define spi_readWrite_synch spi_sw_readWrite_synch
 #endif
 #include "mal.h"
 
-typedef enum _MDD_SDSPI_MDStates {
-	MDStates_First = 0,
-	MDStates_Slow_1,
-	MDStates_Slow_2,
-	MDStates_Slow_3,
-	MDStates_Init,
-	MDStates_Finish,
-} MDD_SDSPI_MDStates;
+#define MDD_SDSPI_MEDIADETECT_TIMER 100 //[ms]
+#define SD_SPI_USE_BLOCKING_LOW_LEVEL_INIT
 
-DWORD MDD_SDSPI_finalLBA = 0;
-WORD gMediaSectorSize = 0;
-BYTE gSDMode = 0;
-MEDIA_INFORMATION mediaInformation;
-ASYNC_IO ioInfo; //Declared global context, for fast/code efficient access
-unsigned char encryptBuffer[512];
-unsigned char diskEncryptState = 0;
-BYTE MDD_SDSPI_MediaDetected = 0;
+typedef enum _SendMMCCmd_Async_Start_states {
+	SendMMCCmd_Async_Start_state_0 = 0,
+	SendMMCCmd_Async_Start_state_1,
+	SendMMCCmd_Async_Start_state_3,
+	SendMMCCmd_Async_Start_state_22,
+} SendMMCCmd_Async_Start_states;
+
+typedef enum _sd_spi_init_low_states {
+	sd_spi_init_low_state_First = 0,
+	sd_spi_init_low_state_Slow_1,
+	sd_spi_init_low_state_Slow_2,
+	sd_spi_init_low_state_Slow_3,
+	sd_spi_init_low_state_Slow_4,
+	sd_spi_init_low_state_Slow_4_wait,
+	sd_spi_init_low_state_try_stop,
+	sd_spi_init_low_state_try_stop_wait,
+	sd_spi_init_low_state_Init,
+	sd_spi_init_low_state_Finish,
+	#ifndef SD_SPI_USE_BLOCKING_LOW_LEVEL_INIT
+	sd_spi_init_low_state_Finish_wait,
+	#endif
+} sd_spi_init_low_states;
+
+typedef enum _sd_spi_init_high_states {
+	sd_spi_init_high_state_0 = 0,
+	sd_spi_init_high_state_1,
+	sd_spi_init_high_state_2,
+	sd_spi_init_high_state_3,
+	sd_spi_init_high_state_31,
+	sd_spi_init_high_state_32,
+	sd_spi_init_high_state_4,
+	sd_spi_init_high_state_5,
+} sd_spi_init_high_states;
+
 uint8 do_sd_spi_1ms = 0;
+sd_spi_init_low_states sd_spi_init_low_state = sd_spi_init_low_state_First;
+sd_spi_init_high_states sd_spi_init_high_state = sd_spi_init_high_state_0;
+uint8 sdi_spi_cmd0_retry_cnt = 0;
+
+DWORD sd_spi_finalLBA = 0;
+WORD sd_spi_gMediaSectorSize = 0;
+BYTE sd_spi_gSDMode = 0;
+MEDIA_INFORMATION sd_spi_mediaInformation;
+ASYNC_IO sd_spi_ioInfo; //Declared global context, for fast/code efficient access
+
+unsigned char sd_spi_encryptBuffer[512];
+unsigned char sd_spi_diskEncryptState = 0;
+
 unsigned int SDSPI_BRG_LOW = 20;
 unsigned int SDSPI_BRG_HIGH = 4;
-Timer do_MDD_SDSPI_MediaInitializeTimer;
-MDD_SDSPI_MDStates do_MDD_SDSPI_MediaDetectState = MDStates_First;
-uint16 do_MDD_SDSPI_MediaInitializeState = 0;
-uint32 MDD_SDSPI_runTime = 0;
+unsigned char sd_spi_bufferOut[10];
+unsigned char sd_spi_bufferIn[10];
 
-const typMMC_CMD sdmmc_cmdtable[] =
-{
+uint32 sd_spi_MediaDetectStateCnt = MDD_SDSPI_MEDIADETECT_TIMER;//Timer how often detection should run
+BYTE sd_spi_MediaDetected = 0;
+Timer sd_spi_global_shared_timer;
+volatile uint32 sd_spi_runTime = 0;
+BYTE SendMMCCmd_Async_Start_cmd;
+DWORD SendMMCCmd_Async_Start_address;
+MMC_RESPONSE SendMMCCmd_Async_Start_response;
+SendMMCCmd_Async_Start_states SendMMCCmd_Async_Start_state = SendMMCCmd_Async_Start_state_0;
+volatile uint32 do_sd_spi_fast_polling = 0;
+
+const typMMC_CMD sdmmc_cmdtable[] = {
     // cmd                      crc     response
     {cmdGO_IDLE_STATE,          0x95,   R1,     NODATA},
     {cmdSEND_OP_COND,           0xF9,   R1,     NODATA},
@@ -171,21 +211,16 @@ const typMMC_CMD sdmmc_cmdtable[] =
     {cmdSET_WR_BLK_ERASE_COUNT, 0xFF,   R1,     NODATA}
 };
 
-static void do_MDD_SDSPI_MediaDetect(void);
+static void sd_spi_low_level_init(void);
 static MMC_RESPONSE SendMMCCmd(BYTE cmd, DWORD address);
-
-BYTE SendMMCCmd_Async_Start_cmd;
-DWORD SendMMCCmd_Async_Start_address;
-MMC_RESPONSE SendMMCCmd_Async_Start_response;
-uint8 SendMMCCmd_Async_Start_state = 0;
 static void SendMMCCmd_Async_Start(BYTE cmd, DWORD address);
 static uint8 SendMMCCmd_Async_Poll(void);
 static MMC_RESPONSE SendMMCCmd_Async_Response(void);
-
 static BYTE MDD_SDSPI_AsyncReadTasks(ASYNC_IO*);
 static BYTE MDD_SDSPI_AsyncWriteTasks(ASYNC_IO*);
-static unsigned char ReadWriteSPIM( unsigned char data_out );
-static void do_MDD_SDSPI_MediaInitialize(void);
+static unsigned char sd_spi_read_write_spi( unsigned char data_out );
+static SPIStateEnum sd_spi_generate_80_clocks_start(void);
+static void sd_spi_high_level_init(void);
 
 void init_sd_spi(void) {
 	// Turn off the card
@@ -199,7 +234,8 @@ void init_sd_spi(void) {
 	SDSPI_BRG_LOW = spi_calculate_BRG(SPI_FREQUENCY_SLOW);
 	SDSPI_BRG_HIGH = spi_calculate_BRG(SPI_FREQUENCY);
 	
-	init_timer(&do_MDD_SDSPI_MediaInitializeTimer);
+	init_timer(&sd_spi_global_shared_timer);
+	write_timer(&sd_spi_global_shared_timer, 1000);
 }
 
 void deinit_sd_spi(void) {
@@ -208,15 +244,11 @@ void deinit_sd_spi(void) {
 }
 
 void do_sd_spi(void) {
-	if (do_sd_spi_1ms) {
+	if ((do_sd_spi_1ms) || (do_sd_spi_fast_polling)) {
 		do_sd_spi_1ms = 0;
-		MDD_SDSPI_runTime = getGlobalTime();
-		do_MDD_SDSPI_MediaDetect();
-		MDD_SDSPI_runTime = getGlobalTime() - MDD_SDSPI_runTime;
-
-		if (MDD_SDSPI_MediaDetect()) {
-		} else {
-		}
+		sd_spi_runTime = getGlobalTime();
+		sd_spi_low_level_init();
+		sd_spi_runTime = getGlobalTime() - sd_spi_runTime;
 	}
 }
 
@@ -224,198 +256,36 @@ void isr_sd_spi_1ms(void) {
 	do_sd_spi_1ms = 1;
 }
 
-void diskIsEncrypted(void) {
-	diskEncryptState = 1;
+void sd_spi_diskIsEncrypted(void) {
+	sd_spi_diskEncryptState = 1;
 }
 
-void diskIsDecrypted(void) {
-	diskEncryptState = 0;
+void sd_spi_diskIsDecrypted(void) {
+	sd_spi_diskEncryptState = 0;
 }
 
-/*********************************************************
-  Function:
-    BYTE MDD_SDSPI_MediaDetect
-  Summary:
-    Determines whether an SD card is present
-  Conditions:
-    The MDD_MediaDetect function pointer must be configured
-    to point to this function in FSconfig.h
-  Input:
-    None
-  Return Values:
-    TRUE -  Card detected
-    FALSE - No card detected
-  Side Effects:
-    None.
-  Description:
-    The MDD_SDSPI_MediaDetect function determine if an SD card is connected to 
-    the microcontroller.
-    If the MEDIA_SOFT_DETECT is not defined, the detection is done by polling
-    the SD card detect pin.
-    The MicroSD connector does not have a card detect pin, and therefore a
-    software mechanism must be used. To do this, the SEND_STATUS command is sent 
-    to the card. If the card is not answering with 0x00, the card is either not 
-    present, not configured, or in an error state. If this is the case, we try
-    to reconfigure the card. If the configuration fails, we consider the card not 
-    present (it still may be present, but malfunctioning). In order to use the 
-    software card detect mechanism, the MEDIA_SOFT_DETECT macro must be defined.
-    
-  Remarks:
-    None                                                  
-  *********************************************************/
-BYTE MDD_SDSPI_MediaDetect(void)
-{
-	return MDD_SDSPI_MediaDetected;
-}//end MediaDetect
+BYTE MDD_SDSPI_MediaDetect(void) {
+	return sd_spi_MediaDetected;
+}
 
-/*****************************************************************************
-  Function:
-    MEDIA_INFORMATION *  MDD_SDSPI_MediaInitialize (void)
-  Summary:
-    Initializes the SD card.
-  Conditions:
-    The MDD_MediaInitialize function pointer must be pointing to this function.
-  Input:
-    None.
-  Return Values:
-    The function returns a pointer to the MEDIA_INFORMATION structure.  The
-    errorCode member may contain the following values:
-        * MEDIA_NO_ERROR - The media initialized successfully
-        * MEDIA_CANNOT_INITIALIZE - Cannot initialize the media.  
-  Side Effects:
-    None.
-  Description:
-    This function will send initialization commands to and SD card.
-  Remarks:
-    Psuedo code flow for the media initialization process is as follows:
-
--------------------------------------------------------------------------------------------
-SD Card SPI Initialization Sequence (for physical layer v1.x or v2.0 device) is as follows:
--------------------------------------------------------------------------------------------
-0.  Power up tasks
-    a.  Initialize microcontroller SPI module to no more than 400kbps rate so as to support MMC devices.
-    b.  Add delay for SD card power up, prior to sending it any commands.  It wants the 
-        longer of: 1ms, the Vdd ramp time (time from 2.7V to Vdd stable), and 74+ clock pulses.
-1.  Send CMD0 (GO_IDLE_STATE) with CS = 0.  This puts the media in SPI mode and software resets the SD/MMC card.
-2.  Send CMD8 (SEND_IF_COND).  This requests what voltage the card wants to run at. 
-    Note: Some cards will not support this command.
-    a.  If illegal command response is received, this implies either a v1.x physical spec device, or not an SD card (ex: MMC).
-    b.  If normal response is received, then it must be a v2.0 or later SD memory card.
-
-If v1.x device:
------------------
-3.  Send CMD1 repeatedly, until initialization complete (indicated by R1 response byte/idle bit == 0)
-4.  Basic initialization is complete.  May now switch to higher SPI frequencies.
-5.  Send CMD9 to read the CSD structure.  This will tell us the total flash size and other info which will be useful later.
-6.  Parse CSD structure bits (based on v1.x structure format) and extract useful information about the media.
-7.  The card is now ready to perform application data transfers.
-
-If v2.0+ device:
------------------
-3.  Verify the voltage range is feasible.  If not, unusable card, should notify user that the card is incompatible with this host.
-4.  Send CMD58 (Read OCR).
-5.  Send CMD55, then ACMD41 (SD_SEND_OP_COND, with HCS = 1).
-    a.  Loop CMD55/ACMD41 until R1 response byte == 0x00 (indicating the card is no longer busy/no longer in idle state).  
-6.  Send CMD58 (Get CCS).
-    a.  If CCS = 1 --> SDHC card.
-    b.  If CCS = 0 --> Standard capacity SD card (which is v2.0+).
-7.  Basic initialization is complete.  May now switch to higher SPI frequencies.
-8.  Send CMD9 to read the CSD structure.  This will tell us the total flash size and other info which will be useful later.
-9.  Parse CSD structure bits (based on v2.0 structure format) and extract useful information about the media.
-10. The card is now ready to perform application data transfers.
---------------------------------------------------------------------------------
-********************************************************************************/
-MEDIA_INFORMATION *  MDD_SDSPI_MediaInitialize(void)
-{
+MEDIA_INFORMATION * MDD_SDSPI_MediaInitialize(void) {
 	MEDIA_INFORMATION * result = NULL;
 	
-	if (mediaInformation.errorCode == MEDIA_NO_ERROR) {
-		result = &mediaInformation;
+	if (sd_spi_mediaInformation.errorCode == MEDIA_NO_ERROR) {
+		result = &sd_spi_mediaInformation;
 	}
 	return result;
-}//end MediaInitialize
-
-/*********************************************************
-  Function:
-    DWORD MDD_SDSPI_ReadCapacity (void)
-  Summary:
-    Determines the current capacity of the SD card
-  Conditions:
-    MDD_MediaInitialize() is complete
-  Input:
-    None
-  Return:
-    The capacity of the device
-  Side Effects:
-    None.
-  Description:
-    The MDD_SDSPI_ReadCapacity function is used by the
-    USB mass storage class to return the total number
-    of sectors on the card.
-  Remarks:
-    None
-  *********************************************************/
-DWORD MDD_SDSPI_ReadCapacity(void)
-{
-    return (MDD_SDSPI_finalLBA);
 }
 
-/*********************************************************
-  Function:
-    WORD MDD_SDSPI_ReadSectorSize (void)
-  Summary:
-    Determines the current sector size on the SD card
-  Conditions:
-    MDD_MediaInitialize() is complete
-  Input:
-    None
-  Return:
-    The size of the sectors for the physical media
-  Side Effects:
-    None.
-  Description:
-    The MDD_SDSPI_ReadSectorSize function is used by the
-    USB mass storage class to return the card's sector
-    size to the PC on request.
-  Remarks:
-    None
-  *********************************************************/
-WORD MDD_SDSPI_ReadSectorSize(void)
-{
-    return gMediaSectorSize;
+DWORD MDD_SDSPI_ReadCapacity(void) {
+    return (sd_spi_finalLBA);
 }
 
-/*****************************************************************************
-  Function:
-    BYTE MDD_SDSPI_SectorRead (DWORD sector_addr, BYTE * buffer)
-  Summary:
-    Reads a sector of data from an SD card.
-  Conditions:
-    The MDD_SectorRead function pointer must be pointing towards this function.
-  Input:
-    sector_addr - The address of the sector on the card.
-    buffer -      The buffer where the retrieved data will be stored.  If
-                  buffer is NULL, do not store the data anywhere.
-  Return Values:
-    TRUE -  The sector was read successfully
-    FALSE - The sector could not be read
-  Side Effects:
-    None
-  Description:
-    The MDD_SDSPI_SectorRead function reads a sector of data bytes (512 bytes) 
-    of data from the SD card starting at the sector address and stores them in 
-    the location pointed to by 'buffer.'
-  Remarks:
-    The card expects the address field in the command packet to be a byte address.
-    The sector_addr value is converted to a byte address by shifting it left nine
-    times (multiplying by 512).
-    
-    This function performs a synchronous read operation.  In other words, this
-    function is a blocking function, and will not return until either the data
-    has fully been read, or, a timeout or other error occurred.
-  ***************************************************************************************/
-BYTE MDD_SDSPI_SectorRead(DWORD sector_addr, BYTE* buffer)
-{
+WORD MDD_SDSPI_ReadSectorSize(void) {
+    return sd_spi_gMediaSectorSize;
+}
+
+BYTE MDD_SDSPI_SectorRead(DWORD sector_addr, BYTE* buffer) {
 	BYTE result = FALSE;
     ASYNC_IO info;
     BYTE status;
@@ -423,8 +293,8 @@ BYTE MDD_SDSPI_SectorRead(DWORD sector_addr, BYTE* buffer)
     //Initialize info structure for using the MDD_SDSPI_AsyncReadTasks() function.
     info.wNumBytes = 512;
     info.dwBytesRemaining = 512;
-	if (diskEncryptState) {
-    	info.pBuffer = encryptBuffer;
+	if (sd_spi_diskEncryptState) {
+    	info.pBuffer = sd_spi_encryptBuffer;
 	} else {
     	info.pBuffer = buffer;
 	}
@@ -440,17 +310,16 @@ BYTE MDD_SDSPI_SectorRead(DWORD sector_addr, BYTE* buffer)
 	if (spi_lock(SPI_USER_SDCARD) == SPI_USER_SDCARD) {
 		{
 			unsigned char SMP = 1;
-			unsigned char CKP = 1;
-			unsigned char CKE = 0;
+			unsigned char MODE = 0;
 			unsigned int BRG = SDSPI_BRG_HIGH;
-			spi_reconfigure(SPI_USER_SDCARD, SMP, CKP, CKE, BRG);
+			spi_reconfigure_mode(SPI_USER_SDCARD, SMP, MODE, BRG);
 		}
 		while(1) {
 			status = MDD_SDSPI_AsyncReadTasks(&info);
 			if(status == ASYNC_READ_COMPLETE) {
-				if (diskEncryptState) {
+				if (sd_spi_diskEncryptState) {
 					#ifdef SDSPI_USE_AES
-						aes_decrypt_ecb(AES_KEY5, encryptBuffer, 512, buffer);
+						aes_decrypt_ecb(AES_KEY5, sd_spi_encryptBuffer, 512, buffer);
 					#endif
 				}
 				result = TRUE;
@@ -466,35 +335,7 @@ BYTE MDD_SDSPI_SectorRead(DWORD sector_addr, BYTE* buffer)
 	return result;
 }
 
-/*****************************************************************************
-  Function:
-    BYTE MDD_SDSPI_SectorWrite (DWORD sector_addr, BYTE * buffer, BYTE allowWriteToZero)
-  Summary:
-    Writes a sector of data to an SD card.
-  Conditions:
-    The MDD_SectorWrite function pointer must be pointing to this function.
-  Input:
-    sector_addr -      The address of the sector on the card.
-    buffer -           The buffer with the data to write.
-    allowWriteToZero -
-                     - TRUE -  Writes to the 0 sector (MBR) are allowed
-                     - FALSE - Any write to the 0 sector will fail.
-  Return Values:
-    TRUE -  The sector was written successfully.
-    FALSE - The sector could not be written.
-  Side Effects:
-    None.
-  Description:
-    The MDD_SDSPI_SectorWrite function writes one sector of data (512 bytes) 
-    of data from the location pointed to by 'buffer' to the specified sector of 
-    the SD card.
-  Remarks:
-    The card expects the address field in the command packet to be a byte address.
-    The sector_addr value is ocnverted to a byte address by shifting it left nine
-    times (multiplying by 512).
-  ***************************************************************************************/
-BYTE MDD_SDSPI_SectorWrite(DWORD sector_addr, BYTE* buffer, BYTE allowWriteToZero)
-{
+BYTE MDD_SDSPI_SectorWrite(DWORD sector_addr, BYTE* buffer, BYTE allowWriteToZero) {
 	BYTE result = FALSE;
     static ASYNC_IO info;
     BYTE status;
@@ -510,25 +351,24 @@ BYTE MDD_SDSPI_SectorWrite(DWORD sector_addr, BYTE* buffer, BYTE allowWriteToZer
     //Initialize structure so we write a single sector worth of data.
     info.wNumBytes = 512;
     info.dwBytesRemaining = 512;
-	if (diskEncryptState) {
-    	info.pBuffer = encryptBuffer;
+	if (sd_spi_diskEncryptState) {
+    	info.pBuffer = sd_spi_encryptBuffer;
 	} else {
     	info.pBuffer = buffer;
 	}
     info.dwAddress = sector_addr;
     info.bStateVariable = ASYNC_WRITE_QUEUED;
-	if (diskEncryptState) {
+	if (sd_spi_diskEncryptState) {
 		#ifdef SDSPI_USE_AES
-			aes_encrypt_ecb(AES_KEY5, buffer, 512, encryptBuffer);
+			aes_encrypt_ecb(AES_KEY5, buffer, 512, sd_spi_encryptBuffer);
 		#endif
 	}
 	if (spi_lock(SPI_USER_SDCARD) == SPI_USER_SDCARD) {
 		{
 			unsigned char SMP = 1;
-			unsigned char CKP = 1;
-			unsigned char CKE = 0;
+			unsigned char MODE = 0;
 			unsigned int BRG = SDSPI_BRG_HIGH;
-			spi_reconfigure(SPI_USER_SDCARD, SMP, CKP, CKE, BRG);
+			spi_reconfigure_mode(SPI_USER_SDCARD, SMP, MODE, BRG);
 		}
 		//Repeatedly call the write handler until the operation is complete (or a
 		//failure/timeout occurred).
@@ -547,212 +387,15 @@ BYTE MDD_SDSPI_SectorWrite(DWORD sector_addr, BYTE* buffer, BYTE allowWriteToZer
 	return result;
 }
 
-/*******************************************************************************
-  Function:
-    BYTE MDD_SDSPI_WriteProtectState
-  Summary:
-    Indicates whether the card is write-protected.
-  Conditions:
-    The MDD_WriteProtectState function pointer must be pointing to this function.
-  Input:
-    None.
-  Return Values:
-    TRUE -  The card is write-protected
-    FALSE - The card is not write-protected
-  Side Effects:
-    None.
-  Description:
-    The MDD_SDSPI_WriteProtectState function will determine if the SD card is
-    write protected by checking the electrical signal that corresponds to the
-    physical write-protect switch.
-  Remarks:
-    None
-*******************************************************************************/
-BYTE MDD_SDSPI_WriteProtectState(void)
-{
+BYTE MDD_SDSPI_WriteProtectState(void) {
     return(0);
 }
 
-/*********************************************************
-  Function:
-    BYTE MDD_SDSPI_ShutdownMedia (void)
-  Summary:
-    Disables the SD card
-  Conditions:
-    The MDD_ShutdownMedia function pointer is pointing 
-    towards this function.
-  Input:
-    None
-  Return:
-    None
-  Side Effects:
-    None.
-  Description:
-    This function will disable the SPI port and deselect
-    the SD card.
-  Remarks:
-    None
-  *********************************************************/
-BYTE MDD_SDSPI_ShutdownMedia(void)
-{
+BYTE MDD_SDSPI_ShutdownMedia(void) {
     return 0;
 }
 
-static void do_MDD_SDSPI_MediaDetect(void) {
-	MMC_RESPONSE    response;
-	static unsigned char timeout_Slow;
-	
-	switch (do_MDD_SDSPI_MediaDetectState) {
-		case MDStates_First : {
-			//First check if SPI module is enabled or not.
-			if (MDD_SDSPI_MediaDetect() == 0) {
-				do_MDD_SDSPI_MediaDetectState = MDStates_Slow_1;
-			} else {
-				do_MDD_SDSPI_MediaDetectState = MDStates_Finish;
-			}
-			break;
-		}
-		case MDStates_Slow_1 : {
-			//If the SPI module is not enabled, then the media has evidently not
-			//been initialized.  Try to send CMD0 and CMD13 to reset the device and
-			//get it into SPI mode (if present), and then request the status of
-			//the media.  If this times out, then the card is presumably not physically
-			//present.
-			if (spi_lock(SPI_USER_SDCARD) == SPI_USER_SDCARD) {
-				{
-					unsigned char SMP = 1;
-					unsigned char CKP = 0;
-					unsigned char CKE = 1;
-					unsigned int BRG = SDSPI_BRG_LOW;
-					spi_reconfigure(SPI_USER_SDCARD, SMP, CKP, CKE, BRG);
-				}
-				//Send CMD0 to reset the media
-				//If the card is physically present, then we should get a valid response.
-				timeout_Slow = 4;
-				do_MDD_SDSPI_MediaDetectState = MDStates_Slow_2;
-			}
-			break;
-		}
-		case MDStates_Slow_2 : {
-			//Toggle chip select, to make media abandon whatever it may have been doing
-			//before.  This ensures the CMD0 is sent freshly after CS is asserted low,
-			//minimizing risk of SPI clock pulse master/slave syncronization problems, 
-			//due to possible application noise on the SCK line.
-			SD_CS = 1;
-			_sync();
-			ReadWriteSPIM(0xFF);   //Send some "extraneous" clock pulses.  If a previous
-								  //command was terminated before it completed normally,
-								  //the card might not have received the required clocking
-								  //following the transfer.
-			SD_CS = 0;
-			_sync();
-			timeout_Slow--;
-	
-			//Send CMD0 to software reset the device
-			do_MDD_SDSPI_MediaDetectState = MDStates_Slow_3;
-			SD_CS = 1;
-			break;
-		}
-		case MDStates_Slow_3 : {
-			response = SendMMCCmd(GO_IDLE_STATE, 0x0);	//Had to remove asynch command since it was interfering with MP3 SPI
-											//Some locking mechanism is needed for the SPI comm
-			if ((response.r1._byte != 0x01) && (timeout_Slow != 0)) {
-				//do once again
-				do_MDD_SDSPI_MediaDetectState = MDStates_Slow_2;
-			} else {
-				//finished
-				//Check if response was invalid (R1 response byte should be = 0x01 after GO_IDLE_STATE)
-				if(response.r1._byte != 0x01) {
-					spi_unlock(SPI_USER_SDCARD);
-					do_MDD_SDSPI_MediaDetectState = MDStates_First;
-				} else {
-					//Card is presumably present.  The SDI pin should have a pull up resistor on
-					//it, so the odds of SDI "floating" to 0x01 after sending CMD0 is very
-					//remote, unless the media is genuinely present.  Therefore, we should
-					//try to perform a full card initialization sequence now.
-					do_MDD_SDSPI_MediaDetectState = MDStates_Init;
-				}
-			}
-			break;
-		}
-		case MDStates_Init : {
-			do_MDD_SDSPI_MediaInitialize();    //Can block and take a long time to execute.
-			if (mediaInformation.errorCode == MEDIA_BUSY) {
-				//Need to wait since asynch is still running.
-			} else if (mediaInformation.errorCode == MEDIA_NO_ERROR) {
-				/* if the card was initialized correctly, it means it is present */
-				spi_unlock(SPI_USER_SDCARD);
-				do_MDD_SDSPI_MediaDetectState = MDStates_Finish;
-				break;
-			} else {
-				spi_unlock(SPI_USER_SDCARD);
-				do_MDD_SDSPI_MediaDetectState = MDStates_First;
-				break;
-			}
-			break;
-		}
-		case MDStates_Finish : {
-			if (spi_lock(SPI_USER_SDCARD) == SPI_USER_SDCARD) {
-				{
-					unsigned char SMP = 1;
-					unsigned char CKP = 1;
-					unsigned char CKE = 0;
-					unsigned int BRG = SDSPI_BRG_HIGH;
-					spi_reconfigure(SPI_USER_SDCARD, SMP, CKP, CKE, BRG);
-				}
-				//The SPI module was already enabled.  This most likely means the media is
-				//present and has already been initialized.  However, it is possible that
-				//the user could have unplugged the media, in which case it is no longer
-				//present.  We should send it a command, to check the status.
-				response = SendMMCCmd(SEND_STATUS,0x0);
-				if((response.r2._word & 0xEC0C) != 0x0000) {
-					MDD_SDSPI_MediaDetected = 0;
-				} else {
-					//The CMD13 response to SEND_STATUS was valid.  This presumably
-					//means the card is present and working normally.
-					MDD_SDSPI_MediaDetected = 1;
-				}
-				spi_unlock(SPI_USER_SDCARD);
-				do_MDD_SDSPI_MediaDetectState = MDStates_First;
-			}
-			break;
-		}
-		default : {
-			do_MDD_SDSPI_MediaDetectState = MDStates_First;
-			break;
-		}
-	}
-}
-
-/*****************************************************************************
-  Function:
-    MMC_RESPONSE SendMMCCmd (BYTE cmd, DWORD address)
-  Summary:
-    Sends a command packet to the SD card.
-  Conditions:
-    None.
-  Input:
-    None.
-  Return Values:
-    MMC_RESPONSE    - The response from the card
-                    - Bit 0 - Idle state
-                    - Bit 1 - Erase Reset
-                    - Bit 2 - Illegal Command
-                    - Bit 3 - Command CRC Error
-                    - Bit 4 - Erase Sequence Error
-                    - Bit 5 - Address Error
-                    - Bit 6 - Parameter Error
-                    - Bit 7 - Unused. Always 0.
-  Side Effects:
-    None.
-  Description:
-    SendMMCCmd prepares a command packet and sends it out over the SPI interface.
-    Response data of type 'R1' (as indicated by the SD/MMC product manual is returned.
-  Remarks:
-    None.
-  *****************************************************************************/
-static MMC_RESPONSE SendMMCCmd(BYTE cmd, DWORD address)
-{
+static MMC_RESPONSE SendMMCCmd(BYTE cmd, DWORD address) {
 	SendMMCCmd_Async_Start(cmd, address);
 	while (1) {
 		if (SendMMCCmd_Async_Poll() == 1) {
@@ -765,16 +408,17 @@ static MMC_RESPONSE SendMMCCmd(BYTE cmd, DWORD address)
 static void SendMMCCmd_Async_Start(BYTE cmd, DWORD address) {
 	SendMMCCmd_Async_Start_cmd = cmd;
 	SendMMCCmd_Async_Start_address = address;
-	SendMMCCmd_Async_Start_state = 0;
+	SendMMCCmd_Async_Start_state = SendMMCCmd_Async_Start_state_0;
+	do_sd_spi_fast_polling = 1;
 }
 
 static uint8 SendMMCCmd_Async_Poll(void) {
-	static MMC_RESPONSE    response;
+	static MMC_RESPONSE response;
 	static WORD timeout_poll;
 	static DWORD longTimeout;
 	uint8 result = 0;
 	switch (SendMMCCmd_Async_Start_state) {
-		case 0 : {
+		case SendMMCCmd_Async_Start_state_0 : {
 			CMD_PACKET  CmdPacket;
 
 			memset(&response, 0, sizeof(response));
@@ -790,30 +434,30 @@ static uint8 SendMMCCmd_Async_Poll(void) {
 			
 			CmdPacket.TRANSMIT_BIT = 1;             //Set Tranmission bit
 			
-			ReadWriteSPIM(CmdPacket.cmd);                //Send Command
-			ReadWriteSPIM(CmdPacket.addr3);              //Most Significant Byte
-			ReadWriteSPIM(CmdPacket.addr2);
-			ReadWriteSPIM(CmdPacket.addr1);
-			ReadWriteSPIM(CmdPacket.addr0);              //Least Significant Byte
-			ReadWriteSPIM(CmdPacket.crc);                //Send CRC
+			sd_spi_read_write_spi(CmdPacket.cmd);                //Send Command
+			sd_spi_read_write_spi(CmdPacket.addr3);              //Most Significant Byte
+			sd_spi_read_write_spi(CmdPacket.addr2);
+			sd_spi_read_write_spi(CmdPacket.addr1);
+			sd_spi_read_write_spi(CmdPacket.addr0);              //Least Significant Byte
+			sd_spi_read_write_spi(CmdPacket.crc);                //Send CRC
 
 			//Special handling for CMD12 (STOP_TRANSMISSION).  The very first byte after
 			//sending the command packet may contain bogus non-0xFF data.  This 
 			//"residual data" byte should not be interpreted as the R1 response byte.
 			if(SendMMCCmd_Async_Start_cmd == STOP_TRANSMISSION)
 			{
-				ReadWriteSPIM(0xFF); //Perform dummy read to fetch the residual non R1 byte
+				sd_spi_read_write_spi(0xFF); //Perform dummy read to fetch the residual non R1 byte
 			} 
 
 			//Loop until we get a response from the media.  Delay (NCR) could be up 
 			//to 8 SPI byte times.  First byte of response is always the equivalent of 
 			//the R1 byte, even for R1b, R2, R3, R7 responses.
 			timeout_poll = NCR_TIMEOUT;
-			SendMMCCmd_Async_Start_state = 1;
+			SendMMCCmd_Async_Start_state = SendMMCCmd_Async_Start_state_1;
 			break;
 		}
-		case 1 : {
-			response.r1._byte = ReadWriteSPIM(0xFF);
+		case SendMMCCmd_Async_Start_state_1 : {
+			response.r1._byte = sd_spi_read_write_spi(0xFF);
 			timeout_poll--;
 			if ((response.r1._byte == MMC_FLOATING_BUS) && (timeout_poll != 0)) {
 				//do it agin
@@ -823,8 +467,8 @@ static uint8 SendMMCCmd_Async_Poll(void) {
 				if(sdmmc_cmdtable[SendMMCCmd_Async_Start_cmd].responsetype == R2)
 				{
 					response.r2._byte1 = response.r1._byte; //We already received the first byte, just make sure it is in the correct location in the struct.
-					response.r2._byte0 = ReadWriteSPIM(0xFF); //Fetch the second byte of the response.
-					SendMMCCmd_Async_Start_state = 3; 
+					response.r2._byte0 = sd_spi_read_write_spi(0xFF); //Fetch the second byte of the response.
+					SendMMCCmd_Async_Start_state = SendMMCCmd_Async_Start_state_3; 
 				}
 				else if(sdmmc_cmdtable[SendMMCCmd_Async_Start_cmd].responsetype == R1b)
 				{
@@ -836,7 +480,7 @@ static uint8 SendMMCCmd_Async_Poll(void) {
                     //to the flash memory.  This can typically take a few milliseconds, 
                     //with a recommended maximum timeout of 250ms or longer for SD cards.
                     longTimeout = WRITE_TIMEOUT_1MS;
-                    SendMMCCmd_Async_Start_state = 22;
+                    SendMMCCmd_Async_Start_state = SendMMCCmd_Async_Start_state_22;
 				}
 				else if (sdmmc_cmdtable[SendMMCCmd_Async_Start_cmd].responsetype == R7) //also used for response R3 type
 				{
@@ -845,19 +489,19 @@ static uint8 SendMMCCmd_Async_Poll(void) {
 					//However, the C compiler stores 32-bit values in little endian in RAM.
 					//When writing to the _returnVal/argument bytes, make sure the order it 
 					//gets stored in is correct.      
-					response.r7.bytewise.argument._byte3 = ReadWriteSPIM(0xFF);
-					response.r7.bytewise.argument._byte2 = ReadWriteSPIM(0xFF);
-					response.r7.bytewise.argument._byte1 = ReadWriteSPIM(0xFF);
-					response.r7.bytewise.argument._byte0 = ReadWriteSPIM(0xFF);
-					SendMMCCmd_Async_Start_state = 3; 
+					response.r7.bytewise.argument._byte3 = sd_spi_read_write_spi(0xFF);
+					response.r7.bytewise.argument._byte2 = sd_spi_read_write_spi(0xFF);
+					response.r7.bytewise.argument._byte1 = sd_spi_read_write_spi(0xFF);
+					response.r7.bytewise.argument._byte0 = sd_spi_read_write_spi(0xFF);
+					SendMMCCmd_Async_Start_state = SendMMCCmd_Async_Start_state_3; 
 				} else {
-                    SendMMCCmd_Async_Start_state = 3; 
+                    SendMMCCmd_Async_Start_state = SendMMCCmd_Async_Start_state_3; 
                 }
 			}
 			break;
 		}
-		case 3 : {
-			ReadWriteSPIM(0xFF);	//Device requires at least 8 clock pulses after 
+		case SendMMCCmd_Async_Start_state_3 : {
+			sd_spi_read_write_spi(0xFF);	//Device requires at least 8 clock pulses after 
 									//the response has been sent, before if can process
 									//the next command.  CS may be high or low.
 
@@ -869,24 +513,26 @@ static uint8 SendMMCCmd_Async_Poll(void) {
 
 			SendMMCCmd_Async_Start_response = response;
 
-			SendMMCCmd_Async_Start_state = 0;
+			SendMMCCmd_Async_Start_state = SendMMCCmd_Async_Start_state_0;
+			do_sd_spi_fast_polling = 0;
 			result = 1;//finished
 			break;
 		}
-		case 22 : {
-			response.r1._byte = ReadWriteSPIM(0xFF);
+		case SendMMCCmd_Async_Start_state_22 : {
+			response.r1._byte = sd_spi_read_write_spi(0xFF);
 			longTimeout--;
 			if (response.r1._byte != 0x00) {
 				response.r1._byte = 0x00;
-				SendMMCCmd_Async_Start_state = 3;
+				SendMMCCmd_Async_Start_state = SendMMCCmd_Async_Start_state_3;
 			} else if (longTimeout == 0) {
-				SendMMCCmd_Async_Start_state = 3;
+				response.r1._byte = 0xFF;
+				SendMMCCmd_Async_Start_state = SendMMCCmd_Async_Start_state_3;
 			}
 
 			break;
 		}
 		default : {
-			SendMMCCmd_Async_Start_state = 0;
+			SendMMCCmd_Async_Start_state = SendMMCCmd_Async_Start_state_0;
 			break;
 		}
 	}
@@ -898,130 +544,10 @@ static MMC_RESPONSE SendMMCCmd_Async_Response(void) {
 	return SendMMCCmd_Async_Start_response;
 }
 
-/*****************************************************************************
-  Function:
-    BYTE MDD_SDSPI_AsyncReadTasks(ASYNC_IO* info)
-  Summary:
-    Speed optimized, non-blocking, state machine based read function that reads 
-    data packets from the media, and copies them to a user specified RAM buffer.
-  Pre-Conditions:
-    The ASYNC_IO structure must be initialized correctly, prior to calling
-    this function for the first time.  Certain parameters, such as the user
-    data buffer pointer (pBuffer) in the ASYNC_IO struct are allowed to be changed
-    by the application firmware, in between each call to MDD_SDSPI_AsyncReadTasks().
-    Additionally, the media and microcontroller SPI module should have already 
-    been initalized before using this function.  This function is mutually
-    exclusive with the MDD_SDSPI_AsyncWriteTasks() function.  Only one operation
-    (either one read or one write) is allowed to be in progress at a time, as
-    both functions share statically allocated resources and monopolize the SPI bus.
-  Input:
-    ASYNC_IO* info -        A pointer to a ASYNC_IO structure.  The 
-                            structure contains information about how to complete
-                            the read operation (ex: number of total bytes to read,
-                            where to copy them once read, maximum number of bytes
-                            to return for each call to MDD_SDSPI_AsyncReadTasks(), etc.).
-  Return Values:
-    BYTE - Returns a status byte indicating the current state of the read 
-            operation. The possible return values are:
-            
-            ASYNC_READ_BUSY - Returned when the state machine is busy waiting for
-                             a data start token from the media.  The media has a
-                             random access time, which can often be quite long
-                             (<= ~3ms typ, with maximum of 100ms).  No data
-                             has been copied yet in this case, and the application
-                             should keep calling MDD_SDSPI_AsyncReadTasks() until either
-                             an error/timeout occurs, or ASYNC_READ_NEW_PACKET_READY
-                             is returned.
-            ASYNC_READ_NEW_PACKET_READY -   Returned after a single packet, of
-                                            the specified size (in info->numBytes),
-                                            is ready to be read from the 
-                                            media and copied to the user 
-                                            specified data buffer.  Often, after
-                                            receiving this return value, the 
-                                            application firmware would want to
-                                            update the info->pReceiveBuffer pointer
-                                            before calling MDD_SDSPI_AsyncReadTasks()
-                                            again.  This way, the application can
-                                            begin fetching the next packet worth
-                                            of data, while still using/consuming
-                                            the previous packet of data.
-            ASYNC_READ_COMPLETE - Returned when all data bytes in the read 
-                                 operation have been read and returned successfully,
-                                 and the media is now ready for the next operation.
-            ASYNC_READ_ERROR - Returned when some failure occurs.  This could be
-                               either due to a media timeout, or due to some other
-                               unknown type of error.  In this case, the 
-                               MDD_SDSPI_AsyncReadTasks() handler will terminate
-                               the read attempt and will try to put the media 
-                               back in a default state, ready for a new command.  
-                               The application firmware may then retry the read
-                               attempt (if desired) by re-initializing the 
-                               ASYNC_IO structure and setting the 
-                               bStateVariable = ASYNC_READ_QUEUED.
-
-            
-  Side Effects:
-    Uses the SPI bus and the media.  The media and SPI bus should not be
-    used by any other function until the read operation has either completed
-    successfully, or returned with the ASYNC_READ_ERROR condition.
-  Description:
-    Speed optimized, non-blocking, state machine based read function that reads 
-    data packets from the media, and copies them to a user specified RAM buffer.
-    This function uses the multi-block read command (and stop transmission command) 
-    to perform fast reads of data.  The total amount of data that will be returned 
-    on any given call to MDD_SDSPI_AsyncReadTasks() will be the info->numBytes parameter.
-    However, if the function is called repeatedly, with info->bytesRemaining set
-    to a large number, this function can successfully fetch data sizes >> than
-    the block size (theoretically anything up to ~4GB, since bytesRemaining is 
-    a 32-bit DWORD).  The application firmware should continue calling 
-    MDD_SDSPI_AsyncReadTasks(), until the ASYNC_READ_COMPLETE value is returned 
-    (or ASYNC_READ_ERROR), even if it has already received all of the data expected.
-    This is necessary, so the state machine can issue the CMD12 (STOP_TRANMISSION) 
-    to terminate the multi-block read operation, once the total expected number 
-    of bytes have been read.  This puts the media back into the default state 
-    ready for a new command.
-    
-    During normal/successful operations, calls to MDD_SDSPI_AsyncReadTasks() 
-    would typically return:
-    1. ASYNC_READ_BUSY - repeatedly up to several milliseconds, then 
-    2. ASYNC_READ_NEW_PACKET_READY - repeatedly, until 512 bytes [media read 
-        block size] is received, then 
-    3. Back to ASYNC_READ_BUSY (for awhile, may be short), then
-    4. Back to ASYNC_READ_NEW_PACKET_READY (repeatedly, until the next 512 byte
-       boundary, then back to #3, etc.
-    5. After all data is received successfully, then the function will return 
-       ASYNC_READ_COMPLETE, for all subsequent calls (until a new read operation
-       is started, by re-initializing the ASYNC_IO structure, and re-calling
-       the function).
-    
-  Remarks:
-    This function will monopolize the SPI module during the operation.  Do not
-    use the SPI module for any other purpose, while a fetch operation is in
-    progress.  Additionally, the ASYNC_IO structure must not be modified
-    in a different context, while the MDD_SDSPI_AsyncReadTasks() function is executing.
-    In between calls to MDD_SDSPI_AsyncReadTasks(), certain parameters, namely the
-    info->numBytes and info->pReceiveBuffer are allowed to change however.
-    
-    The bytesRemaining value must always be an exact integer multiple of numBytes 
-    for the function to operate correctly.  Additionally, it is recommended, although
-    not essential, for the bytesRemaining to be an integer multiple of the media
-    read block size.
-    
-    When starting a read operation, the info->stateVariable must be initalized to
-    ASYNC_READ_QUEUED.  All other fields in the info structure should also be
-    initialized correctly.
-    
-    The info->wNumBytes must always be less than or equal to the media block size,
-    (which is 512 bytes).  Additionally, info->wNumBytes must always be an exact 
-    integer factor of the media block size (unless info->dwBytesRemaining is less
-    than the media block size).  Example values that are allowed for info->wNumBytes
-    are: 1, 2, 4, 8, 16, 32, 64, 128, 256, 512.
-  *****************************************************************************/
-static BYTE MDD_SDSPI_AsyncReadTasks(ASYNC_IO* info)
-{
+static BYTE MDD_SDSPI_AsyncReadTasks(ASYNC_IO* info) {
     BYTE bData;
     MMC_RESPONSE response;
-    static WORD blockCounter;
+    static WORD sd_spi_blockCounter;
     static DWORD longTimeoutCounter;
     static BOOL SingleBlockRead;
     
@@ -1034,26 +560,26 @@ static BYTE MDD_SDSPI_AsyncReadTasks(ASYNC_IO* info)
             //Start the read request.  
             
             //Initialize some variables we will use later.
-            blockCounter = MEDIA_BLOCK_SIZE; //Counter will be used later for block boundary tracking
-            ioInfo = *info; //Get local copy of structure, for quicker access with less code size
+            sd_spi_blockCounter = MEDIA_BLOCK_SIZE; //Counter will be used later for block boundary tracking
+            sd_spi_ioInfo = *info; //Get local copy of structure, for quicker access with less code size
 
             //SDHC cards are addressed on a 512 byte block basis.  This is 1:1 equivalent
             //to LBA addressing.  For standard capacity media, the media is expecting
             //a complete byte address.  Therefore, to convert from the LBA address to the
             //byte address, we need to multiply by 512.
-            if (gSDMode == SD_MODE_NORMAL)
+            if (sd_spi_gSDMode == SD_MODE_NORMAL)
             {
-                ioInfo.dwAddress <<= 9; //Equivalent to multiply by 512
+                sd_spi_ioInfo.dwAddress <<= 9; //Equivalent to multiply by 512
             }
-            if(ioInfo.dwBytesRemaining <= MEDIA_BLOCK_SIZE)
+            if(sd_spi_ioInfo.dwBytesRemaining <= MEDIA_BLOCK_SIZE)
             {
                 SingleBlockRead = TRUE;
-                response = SendMMCCmd(READ_SINGLE_BLOCK, ioInfo.dwAddress);
+                response = SendMMCCmd(READ_SINGLE_BLOCK, sd_spi_ioInfo.dwAddress);
             }
             else
             {
                 SingleBlockRead = FALSE;
-                response = SendMMCCmd(READ_MULTI_BLOCK, ioInfo.dwAddress);
+                response = SendMMCCmd(READ_MULTI_BLOCK, sd_spi_ioInfo.dwAddress);
             }
             //Note: SendMMCmd() sends 8 SPI clock cycles after getting the
             //response.  This meets the NAC min timing paramemter, so we don't
@@ -1081,7 +607,7 @@ static BYTE MDD_SDSPI_AsyncReadTasks(ASYNC_IO* info)
             if(longTimeoutCounter != 0x00000000)
             {
                 longTimeoutCounter--;
-                bData = ReadWriteSPIM(0xFF);
+                bData = sd_spi_read_write_spi(0xFF);
                 
                 if(bData != MMC_FLOATING_BUS)
                 {
@@ -1119,18 +645,18 @@ static BYTE MDD_SDSPI_AsyncReadTasks(ASYNC_IO* info)
             //We have sent the READ_MULTI_BLOCK command and have successfully
             //received the data start token byte.  Therefore, we are ready
             //to receive raw data bytes from the media.
-            if(ioInfo.dwBytesRemaining != 0x00000000)
+            if(sd_spi_ioInfo.dwBytesRemaining != 0x00000000)
             {
                 //Re-update local copy of pointer and number of bytes to read in this
                 //call.  These parameters are allowed to change between packets.
-                ioInfo.wNumBytes = info->wNumBytes;
-           	    ioInfo.pBuffer = info->pBuffer;
+                sd_spi_ioInfo.wNumBytes = info->wNumBytes;
+           	    sd_spi_ioInfo.pBuffer = info->pBuffer;
            	    
            	    //Update counters for state tracking and loop exit condition tracking.
-                ioInfo.dwBytesRemaining -= ioInfo.wNumBytes;
-                blockCounter -= ioInfo.wNumBytes;
+                sd_spi_ioInfo.dwBytesRemaining -= sd_spi_ioInfo.wNumBytes;
+                sd_spi_blockCounter -= sd_spi_ioInfo.wNumBytes;
 
-                //Now read a ioInfo.wNumBytes packet worth of SPI bytes, 
+                //Now read a sd_spi_ioInfo.wNumBytes packet worth of SPI bytes, 
                 //and place the received bytes in the user specified pBuffer.
                 //This operation directly dictates data thoroughput in the 
                 //application, therefore optimized code should be used for each 
@@ -1139,34 +665,34 @@ static BYTE MDD_SDSPI_AsyncReadTasks(ASYNC_IO* info)
                     //PIC24/dsPIC/PIC32 architecture is efficient with pointers.
                     //Therefore, this code can provide good SPI bus utilization, 
                     //provided the compiler optimization level is 's' or '3'.
-                    BYTE* localPointer = ioInfo.pBuffer;
-                    WORD localCounter = ioInfo.wNumBytes;
+                    BYTE* localPointer = sd_spi_ioInfo.pBuffer;
+                    WORD localCounter = sd_spi_ioInfo.wNumBytes;
                     spi_readWrite_synch(SPI_USER_SDCARD, NULL, localPointer, localCounter);
                 }
 
                 //Check if we have received a multiple of the media block 
                 //size (ex: 512 bytes).  If so, the next two bytes are going to 
                 //be CRC values, rather than data bytes.  
-                if(blockCounter == 0)
+                if(sd_spi_blockCounter == 0)
                 {
                     //Read two bytes to receive the CRC-16 value on the data block.
-                    ReadWriteSPIM(0xFF);
-                    ReadWriteSPIM(0xFF);
+                    sd_spi_read_write_spi(0xFF);
+                    sd_spi_read_write_spi(0xFF);
                     //Following sending of the CRC-16 value, the media may still
                     //need more access time to internally fetch the next block.
                     //Therefore, it will send back 0xFF idle value, until it is
                     //ready.  Then it will send a new data start token, followed
                     //by the next block of useful data.
-                    if(ioInfo.dwBytesRemaining != 0x00000000)
+                    if(sd_spi_ioInfo.dwBytesRemaining != 0x00000000)
                     {
                         info->bStateVariable = ASYNC_READ_WAIT_START_TOKEN;
                     }
-                    blockCounter = MEDIA_BLOCK_SIZE;
+                    sd_spi_blockCounter = MEDIA_BLOCK_SIZE;
                     return ASYNC_READ_BUSY;
                 }
                     
                 return ASYNC_READ_NEW_PACKET_READY;
-            }//if(ioInfo.dwBytesRemaining != 0x00000000)
+            }//if(sd_spi_ioInfo.dwBytesRemaining != 0x00000000)
             else
             {
                 //We completed the read operation successfully and have returned
@@ -1179,7 +705,7 @@ static BYTE MDD_SDSPI_AsyncReadTasks(ASYNC_IO* info)
                 }
                 SD_CS = 1;  //De-select media
                 _sync();
-                mSend8ClkCycles();  
+                sd_spi_read_write_spi(0xFF);//Send 8 clock cycles
                 info->bStateVariable = ASYNC_READ_COMPLETE;
                 return ASYNC_READ_COMPLETE;
             }
@@ -1194,7 +720,7 @@ static BYTE MDD_SDSPI_AsyncReadTasks(ASYNC_IO* info)
             //Some error must have happened.
             SD_CS = 1;  //De-select media
             _sync();
-            mSend8ClkCycles();  
+            sd_spi_read_write_spi(0xFF);//mSend8ClkCycles
             return ASYNC_READ_ERROR; 
     }//switch(info->stateVariable)    
     
@@ -1202,125 +728,11 @@ static BYTE MDD_SDSPI_AsyncReadTasks(ASYNC_IO* info)
     return ASYNC_READ_ERROR;
 }
 
-/*****************************************************************************
-  Function:
-    BYTE MDD_SDSPI_AsyncWriteTasks(ASYNC_IO* info)
-  Summary:
-    Speed optimized, non-blocking, state machine based write function that writes
-    data from the user specified buffer, onto the media, at the specified 
-    media block address.
-  Pre-Conditions:
-    The ASYNC_IO structure must be initialized correctly, prior to calling
-    this function for the first time.  Certain parameters, such as the user
-    data buffer pointer (pBuffer) in the ASYNC_IO struct are allowed to be changed
-    by the application firmware, in between each call to MDD_SDSPI_AsyncWriteTasks().
-    Additionally, the media and microcontroller SPI module should have already 
-    been initalized before using this function.  This function is mutually
-    exclusive with the MDD_SDSPI_AsyncReadTasks() function.  Only one operation
-    (either one read or one write) is allowed to be in progress at a time, as
-    both functions share statically allocated resources and monopolize the SPI bus.
-  Input:
-    ASYNC_IO* info -        A pointer to a ASYNC_IO structure.  The 
-                            structure contains information about how to complete
-                            the write operation (ex: number of total bytes to write,
-                            where to obtain the bytes from, number of bytes
-                            to write for each call to MDD_SDSPI_AsyncWriteTasks(), etc.).
-  Return Values:
-    BYTE - Returns a status byte indicating the current state of the write 
-            operation. The possible return values are:
-            
-            ASYNC_WRITE_BUSY - Returned when the state machine is busy waiting for
-                             the media to become ready to accept new data.  The 
-                             media has write time, which can often be quite long
-                             (a few ms typ, with maximum of 250ms).  The application
-                             should keep calling MDD_SDSPI_AsyncWriteTasks() until either
-                             an error/timeout occurs, ASYNC_WRITE_SEND_PACKET
-                             is returned, or ASYNC_WRITE_COMPLETE is returned.
-            ASYNC_WRITE_SEND_PACKET -   Returned when the MDD_SDSPI_AsyncWriteTasks()
-                                        handler is ready to consume data and send
-                                        it to the media.  After ASYNC_WRITE_SEND_PACKET
-                                        is returned, the application should make certain
-                                        that the info->wNumBytes and pBuffer parameters
-                                        are correct, prior to calling 
-                                        MDD_SDSPI_AsyncWriteTasks() again.  After
-                                        the function returns, the application is
-                                        then free to write new data into the pBuffer
-                                        RAM location. 
-            ASYNC_WRITE_COMPLETE - Returned when all data bytes in the write
-                                 operation have been written to the media successfully,
-                                 and the media is now ready for the next operation.
-            ASYNC_WRITE_ERROR - Returned when some failure occurs.  This could be
-                               either due to a media timeout, or due to some other
-                               unknown type of error.  In this case, the 
-                               MDD_SDSPI_AsyncWriteTasks() handler will terminate
-                               the write attempt and will try to put the media 
-                               back in a default state, ready for a new command.  
-                               The application firmware may then retry the write
-                               attempt (if desired) by re-initializing the 
-                               ASYNC_IO structure and setting the 
-                               bStateVariable = ASYNC_WRITE_QUEUED.
-
-            
-  Side Effects:
-    Uses the SPI bus and the media.  The media and SPI bus should not be
-    used by any other function until the read operation has either completed
-    successfully, or returned with the ASYNC_WRITE_ERROR condition.
-  Description:
-    Speed optimized, non-blocking, state machine based write function that writes 
-    data packets to the media, from a user specified RAM buffer.
-    This function uses either the single block or multi-block write command 
-    to perform fast writes of the data.  The total amount of data that will be 
-    written on any given call to MDD_SDSPI_AsyncWriteTasks() will be the 
-    info->numBytes parameter.
-    However, if the function is called repeatedly, with info->dwBytesRemaining
-    set to a large number, this function can successfully write data sizes >> than
-    the block size (theoretically anything up to ~4GB, since dwBytesRemaining is 
-    a 32-bit DWORD).  The application firmware should continue calling 
-    MDD_SDSPI_AsyncWriteTasks(), until the ASYNC_WRITE_COMPLETE value is returned 
-    (or ASYNC_WRITE_ERROR), even if it has already sent all of the data expected.
-    This is necessary, so the state machine can finish the write process and 
-    terminate the multi-block write operation, once the total expected number 
-    of bytes have been written.  This puts the media back into the default state 
-    ready for a new command.
-    
-    During normal/successful operations, calls to MDD_SDSPI_AsyncWriteTasks() 
-    would typically return:
-    1. ASYNC_WRITE_SEND_PACKET - repeatedly, until 512 bytes [media read 
-        block size] is received, then 
-    2. ASYNC_WRITE_BUSY (for awhile, could be a long time, many milliseconds), then
-    3. Back to ASYNC_WRITE_SEND_PACKET (repeatedly, until the next 512 byte
-       boundary, then back to #2, etc.
-    4. After all data is copied successfully, then the function will return 
-       ASYNC_WRITE_COMPLETE, for all subsequent calls (until a new write operation
-       is started, by re-initializing the ASYNC_IO structure, and re-calling
-       the function).
-    
-  Remarks:
-    When starting a read operation, the info->stateVariable must be initalized to
-    ASYNC_WRITE_QUEUED.  All other fields in the info structure should also be
-    initialized correctly.
-
-    This function will monopolize the SPI module during the operation.  Do not
-    use the SPI module for any other purpose, while a write operation is in
-    progress.  Additionally, the ASYNC_IO structure must not be modified
-    in a different context, while the MDD_SDSPI_AsyncReadTasks() function is 
-    actively executing.
-    In between calls to MDD_SDSPI_AsyncWriteTasks(), certain parameters, namely the
-    info->wNumBytes and info->pBuffer are allowed to change however.
-    
-    The dwBytesRemaining value must always be an exact integer multiple of wNumBytes 
-    for the function to operate correctly.  Additionally, it is required that
-    the wNumBytes parameter, must always be less than or equal to the media block size,
-    (which is 512 bytes).  Additionally, info->wNumBytes must always be an exact 
-    integer factor of the media block size.  Example values that are allowed for
-    info->wNumBytes are: 1, 2, 4, 8, 16, 32, 64, 128, 256, 512.
-  *****************************************************************************/
-static BYTE MDD_SDSPI_AsyncWriteTasks(ASYNC_IO* info)
-{
-    static BYTE data_byte;
-    static WORD blockCounter;
-    static DWORD WriteTimeout;
-    static BYTE command;
+static BYTE MDD_SDSPI_AsyncWriteTasks(ASYNC_IO* info) {
+    static BYTE sd_spi_data_byte;
+    static WORD sd_spi_blockCounter;
+    static DWORD sd_spi_WriteTimeout;
+    static BYTE sd_spi_command;
     DWORD preEraseBlockCount;
     MMC_RESPONSE response;
 
@@ -1332,25 +744,25 @@ static BYTE MDD_SDSPI_AsyncWriteTasks(ASYNC_IO* info)
             return ASYNC_WRITE_COMPLETE;
         case ASYNC_WRITE_QUEUED:
             //Initiate the write sequence.
-            blockCounter = MEDIA_BLOCK_SIZE;    //Initialize counter.  Will be used later for block boundary tracking.
+            sd_spi_blockCounter = MEDIA_BLOCK_SIZE;    //Initialize counter.  Will be used later for block boundary tracking.
 
             //Copy input structure into a statically allocated global instance 
             //of the structure, for faster local access of the parameters with 
             //smaller code size.
-            ioInfo = *info;
+            sd_spi_ioInfo = *info;
 
             //Check if we are writing only a single block worth of data, or 
             //multiple blocks worth of data.
-            if(ioInfo.dwBytesRemaining <= MEDIA_BLOCK_SIZE)
+            if(sd_spi_ioInfo.dwBytesRemaining <= MEDIA_BLOCK_SIZE)
             {
-                command = WRITE_SINGLE_BLOCK;
+                sd_spi_command = WRITE_SINGLE_BLOCK;
             }
             else
             {
-                command = WRITE_MULTI_BLOCK;
+                sd_spi_command = WRITE_MULTI_BLOCK;
                 
                 //Compute the number of blocks that we are going to be writing in this multi-block write operation.
-                preEraseBlockCount = (ioInfo.dwBytesRemaining >> 9); //Divide by 512 to get the number of blocks to write
+                preEraseBlockCount = (sd_spi_ioInfo.dwBytesRemaining >> 9); //Divide by 512 to get the number of blocks to write
                 //Always need to erase at least one block.
                 if(preEraseBlockCount == 0)
                 {
@@ -1372,14 +784,14 @@ static BYTE MDD_SDSPI_AsyncWriteTasks(ASYNC_IO* info)
             //To convert the block address into a byte address, we multiply by the block size (512).
             //For SDHC (high capacity) cards, the card expects a block address already, so no
             //address cconversion is needed
-            if (gSDMode == SD_MODE_NORMAL)  
+            if (sd_spi_gSDMode == SD_MODE_NORMAL)  
             {
-                ioInfo.dwAddress <<= 9;   //<< 9 multiplies by 512
+                sd_spi_ioInfo.dwAddress <<= 9;   //<< 9 multiplies by 512
             }
 
             //Send the write single or write multi command, with the LBA or byte 
             //address (depeding upon SDHC or standard capacity card)
-            response = SendMMCCmd(command, ioInfo.dwAddress);    
+            response = SendMMCCmd(sd_spi_command, sd_spi_ioInfo.dwAddress);    
 
             //See if it was accepted
             if(response.r1._byte != 0x00)
@@ -1398,28 +810,28 @@ static BYTE MDD_SDSPI_AsyncWriteTasks(ASYNC_IO* info)
         case ASYNC_WRITE_TRANSMIT_PACKET:
             //Check if we just finished programming a block, or we are starting
             //for the first time.  In this case, we need to send the data start token.
-            if(blockCounter == MEDIA_BLOCK_SIZE)
+            if(sd_spi_blockCounter == MEDIA_BLOCK_SIZE)
             {
                 //Send the correct data start token, based on the type of write we are doing
-                if(command == WRITE_MULTI_BLOCK)
+                if(sd_spi_command == WRITE_MULTI_BLOCK)
                 {
-					ReadWriteSPIM(DATA_START_MULTI_BLOCK_TOKEN);   
+					sd_spi_read_write_spi(DATA_START_MULTI_BLOCK_TOKEN);   
                 }
                 else
                 {
                     //Else must be a single block write
-                    ReadWriteSPIM(DATA_START_TOKEN);   
+                    sd_spi_read_write_spi(DATA_START_TOKEN);   
                 }
             } 
                
             //Update local copy of pointer and byte count.  Application firmware
             //is alllowed to change these between calls to this handler function.
-            ioInfo.wNumBytes = info->wNumBytes;
-            ioInfo.pBuffer = info->pBuffer;
+            sd_spi_ioInfo.wNumBytes = info->wNumBytes;
+            sd_spi_ioInfo.pBuffer = info->pBuffer;
             
             //Keep track of variables for loop/state exit conditions.
-            ioInfo.dwBytesRemaining -= ioInfo.wNumBytes;
-            blockCounter -= ioInfo.wNumBytes;
+            sd_spi_ioInfo.dwBytesRemaining -= sd_spi_ioInfo.wNumBytes;
+            sd_spi_blockCounter -= sd_spi_ioInfo.wNumBytes;
             
             //Now send a packet of raw data bytes to the media, over SPI.
             //This code directly impacts data thoroughput in a significant way.  
@@ -1429,25 +841,26 @@ static BYTE MDD_SDSPI_AsyncWriteTasks(ASYNC_IO* info)
                 //local variables due to the large number of WREGs available.
                 //Therefore, this code gives good SPI bus utilization, provided
                 //the compiler optimization level is 's' or '3'.
-                BYTE* localPointer = ioInfo.pBuffer;    
-                WORD localCounter = ioInfo.wNumBytes;
+                BYTE* localPointer = sd_spi_ioInfo.pBuffer;    
+                WORD localCounter = sd_spi_ioInfo.wNumBytes;
 				spi_readWrite_synch(SPI_USER_SDCARD, localPointer, NULL, localCounter);        
             }
  
             //Check if we have finshed sending a 512 byte block.  If so,
             //need to receive 16-bit CRC, and retrieve the data_response token
-            if(blockCounter == 0)
+            if(sd_spi_blockCounter == 0)
             {
-                blockCounter = MEDIA_BLOCK_SIZE;    //Re-initialize counter
+                sd_spi_blockCounter = MEDIA_BLOCK_SIZE;    //Re-initialize counter
                 
                 //Add code to compute CRC, if using CRC. By default, the media 
                 //doesn't use CRC unless it is enabled manually during the card 
                 //initialization sequence.
-                mSendCRC();  //Send 16-bit CRC for the data block just sent
+                sd_spi_read_write_spi(0xFF);
+				sd_spi_read_write_spi(0xFF);//Send 16-bit CRC for the data block just sent
                 
                 //Read response token byte from media, mask out top three don't 
                 //care bits, and check if there was an error
-                if((ReadWriteSPIM(0xFF) & WRITE_RESPONSE_TOKEN_MASK) != DATA_ACCEPTED)
+                if((sd_spi_read_write_spi(0xFF) & WRITE_RESPONSE_TOKEN_MASK) != DATA_ACCEPTED)
                 {
                     //Something went wrong.  Try and terminate as gracefully as 
                     //possible, so as allow possible recovery.
@@ -1459,38 +872,38 @@ static BYTE MDD_SDSPI_AsyncWriteTasks(ASYNC_IO* info)
                 //it is internally ready again (after the block is successfully
                 //writen and the card is ready to accept a new block.
                 info->bStateVariable = ASYNC_WRITE_MEDIA_BUSY;
-                WriteTimeout = WRITE_TIMEOUT;       //Initialize timeout counter
+                sd_spi_WriteTimeout = WRITE_TIMEOUT;       //Initialize timeout counter
                 return ASYNC_WRITE_BUSY;
-            }//if(blockCounter == 0)
+            }//if(sd_spi_blockCounter == 0)
             
             //If we get to here, we haven't reached a block boundary yet.  Keep 
             //on requesting packets of data from the application.
             return ASYNC_WRITE_SEND_PACKET;   
 
         case ASYNC_WRITE_MEDIA_BUSY:
-            if(WriteTimeout != 0)
+            if(sd_spi_WriteTimeout != 0)
             {
-                WriteTimeout--;
-                mSend8ClkCycles();  //Dummy read to gobble up a byte (ex: to ensure we meet NBR timing parameter)
-                data_byte = ReadWriteSPIM(0xFF);  //Poll the media.  Will return 0x00 if still busy.  Will return non-0x00 is ready for next data block.
-                if(data_byte != 0x00)
+                sd_spi_WriteTimeout--;
+                sd_spi_read_write_spi(0xFF);//mSend8ClkCycles();  //Dummy read to gobble up a byte (ex: to ensure we meet NBR timing parameter)
+                sd_spi_data_byte = sd_spi_read_write_spi(0xFF);  //Poll the media.  Will return 0x00 if still busy.  Will return non-0x00 is ready for next data block.
+                if(sd_spi_data_byte != 0x00)
                 {
                     //The media is done and is no longer busy.  Go ahead and
                     //either send the next packet of data to the media, or the stop
                     //token if we are finshed.
-                    if(ioInfo.dwBytesRemaining == 0)
+                    if(sd_spi_ioInfo.dwBytesRemaining == 0)
                     {
-                        WriteTimeout = WRITE_TIMEOUT;
-                        if(command == WRITE_MULTI_BLOCK)
+                        sd_spi_WriteTimeout = WRITE_TIMEOUT;
+                        if(sd_spi_command == WRITE_MULTI_BLOCK)
                         {
                             //We finished sending all bytes of data.  Send the stop token byte.
-                            ReadWriteSPIM(DATA_STOP_TRAN_TOKEN);
+                            sd_spi_read_write_spi(DATA_STOP_TRAN_TOKEN);
                             //After sending the stop transmission token, we need to
                             //gobble up one byte before checking for media busy (0x00).
                             //This is to meet the NBR timing parameter.  During the NBR
                             //interval the SD card may not respond with the busy signal, even
                             //though it is internally busy.
-                            mSend8ClkCycles();
+                            sd_spi_read_write_spi(0xFF);//mSend8ClkCycles();
                                                 
                             //The media still needs to finish internally writing.
                             info->bStateVariable = ASYNC_STOP_TOKEN_SENT_WAIT_BUSY;
@@ -1503,7 +916,7 @@ static BYTE MDD_SDSPI_AsyncWriteTasks(ASYNC_IO* info)
                             //now fully complete with the write operation.
                             SD_CS = 1;          //De-select media
                             _sync();
-                            mSend8ClkCycles();  
+                            sd_spi_read_write_spi(0xFF);//mSend8ClkCycles();  
                             info->bStateVariable = ASYNC_WRITE_COMPLETE;
                             return ASYNC_WRITE_COMPLETE;                            
                         }
@@ -1532,12 +945,12 @@ static BYTE MDD_SDSPI_AsyncWriteTasks(ASYNC_IO* info)
             //operation.  Now all we need to do, is keep waiting until the card
             //signals it is no longer busy.  Card will keep sending 0x00 bytes
             //until it is no longer busy.
-            if(WriteTimeout != 0)
+            if(sd_spi_WriteTimeout != 0)
             {
-                WriteTimeout--;
-                data_byte = ReadWriteSPIM(0xFF);
+                sd_spi_WriteTimeout--;
+                sd_spi_data_byte = sd_spi_read_write_spi(0xFF);
                 //Check if card is no longer busy.  
-                if(data_byte != 0x00)
+                if(sd_spi_data_byte != 0x00)
                 {
                     //If we get to here, multi-block write operation is fully
                     //complete now.  
@@ -1548,7 +961,7 @@ static BYTE MDD_SDSPI_AsyncWriteTasks(ASYNC_IO* info)
                     //Prepare to receive the next command.
                     SD_CS = 1;          //De-select media
                     _sync();
-                    mSend8ClkCycles();  //NEC timing parameter clocking
+                    sd_spi_read_write_spi(0xFF);//mSend8ClkCycles();  //NEC timing parameter clocking
                     info->bStateVariable = ASYNC_WRITE_COMPLETE;
                     return ASYNC_WRITE_COMPLETE;
                 }
@@ -1562,7 +975,7 @@ static BYTE MDD_SDSPI_AsyncWriteTasks(ASYNC_IO* info)
             SendMMCCmd(STOP_TRANSMISSION, 0x00000000);
             SD_CS = 1;  //deselect media
             _sync();
-            mSend8ClkCycles();  //After raising CS pin, media may not tri-state data out for 1 bit time.
+            sd_spi_read_write_spi(0xFF);//mSend8ClkCycles();  //After raising CS pin, media may not tri-state data out for 1 bit time.
             info->bStateVariable = ASYNC_WRITE_ERROR; 
             //Fall through to default case.
         default:
@@ -1576,167 +989,231 @@ static BYTE MDD_SDSPI_AsyncWriteTasks(ASYNC_IO* info)
     return ASYNC_WRITE_BUSY;
 } 
 
-static unsigned char ReadWriteSPIM( unsigned char data_out ) {
-	unsigned char bufferOut[1];
-	unsigned char bufferIn[1];
+static unsigned char sd_spi_read_write_spi(unsigned char data_out ) {
 	unsigned int size = 1;
-	bufferOut[0] = data_out;
-	spi_readWrite_synch(SPI_USER_SDCARD, bufferOut, bufferIn, size);
-	return ( bufferIn[0] );
+	sd_spi_bufferOut[0] = data_out;
+	spi_readWrite_synch(SPI_USER_SDCARD, sd_spi_bufferOut, sd_spi_bufferIn, size);
+	return ( sd_spi_bufferIn[0] );
 }
 
-static void do_MDD_SDSPI_MediaInitialize(void) {
+static SPIStateEnum sd_spi_generate_80_clocks_start(void) {
+	unsigned int size = 10;
+	memset(sd_spi_bufferOut, 0xFF, 10);
+	memset(sd_spi_bufferIn, 0xFF, 10);
+	return spi_readWrite_asynch(SPI_USER_SDCARD, sd_spi_bufferOut, sd_spi_bufferIn, size);
+}
+
+static void sd_spi_low_level_init(void) {
+	MMC_RESPONSE    response;
+	
+	switch (sd_spi_init_low_state) {
+		case sd_spi_init_low_state_First : {
+			//First check if SPI module is enabled or not.
+			if (sd_spi_MediaDetected == 0) {
+				if (read_timer(&sd_spi_global_shared_timer) == 0) {
+					sd_spi_init_low_state = sd_spi_init_low_state_Slow_1;
+				}
+			} else {
+				if (sd_spi_MediaDetectStateCnt != 0) {
+					sd_spi_MediaDetectStateCnt--;
+				} else {
+					sd_spi_MediaDetectStateCnt = MDD_SDSPI_MEDIADETECT_TIMER;
+					sd_spi_init_low_state = sd_spi_init_low_state_Finish;
+				}
+			}
+			break;
+		}
+		case sd_spi_init_low_state_Slow_1 : {
+			if (spi_lock(SPI_USER_SDCARD) == SPI_USER_SDCARD) {
+				{
+					unsigned char SMP = 1;
+					unsigned char MODE = 0;
+					unsigned int BRG = SDSPI_BRG_LOW;
+					spi_reconfigure_mode(SPI_USER_SDCARD, SMP, MODE, BRG);
+				}
+				sd_spi_init_low_state = sd_spi_init_low_state_Slow_2;
+			}
+			break;
+		}
+		case sd_spi_init_low_state_Slow_2 : {
+			SD_CS = 1;
+			_sync();
+			sd_spi_generate_80_clocks_start();   //Send some "extraneous" clock pulses.  If a previous
+												//command was terminated before it completed normally,
+												//the card might not have received the required clocking
+												//following the transfer.
+			sd_spi_init_low_state = sd_spi_init_low_state_Slow_3;
+			break;
+		}
+		case sd_spi_init_low_state_Slow_3 : {
+			if (spi_get_state() != SPI_BUSY_STATE) {
+				sd_spi_init_low_state = sd_spi_init_low_state_Slow_4;
+			}
+			break;
+		}
+		case sd_spi_init_low_state_Slow_4 : {
+			SD_CS = 0;
+			_sync();
+			sdi_spi_cmd0_retry_cnt++;
+			SendMMCCmd_Async_Start(GO_IDLE_STATE, 0x0);	//CMD0
+			sd_spi_init_low_state = sd_spi_init_low_state_Slow_4_wait;
+			break;
+		}
+		case sd_spi_init_low_state_Slow_4_wait : {
+			if (SendMMCCmd_Async_Poll() == 1) {
+				response = SendMMCCmd_Async_Response();
+				SD_CS = 1;
+				_sync();
+
+				//Check if response was invalid (R1 response byte should be = 0x01 after GO_IDLE_STATE)
+				if (response.r1._byte == 0x01) {
+					//Card is presumably present.  The SDI pin should have a pull up resistor on
+					//it, so the odds of SDI "floating" to 0x01 after sending CMD0 is very
+					//remote, unless the media is genuinely present.  Therefore, we should
+					//try to perform a full card initialization sequence now.
+					sdi_spi_cmd0_retry_cnt = 0;
+					sd_spi_init_low_state = sd_spi_init_low_state_Init;
+				} else {
+					//Check if all attempts failed and we timed out.  Normally, this won't happen,
+					//unless maybe the SD card was busy, because it was previously performing a
+					//read or write operation, when it was interrupted by the microcontroller getting
+					//reset or power cycled, without also resetting or power cycling the SD card.
+					//In this case, the SD card may still be busy (ex: trying to respond with the 
+					//read request data), and may not be ready to process CMD0.  In this case,
+					//we can try to recover by issuing CMD12 (STOP_TRANSMISSION).
+					if (sdi_spi_cmd0_retry_cnt >= 10) {
+						sdi_spi_cmd0_retry_cnt = 0;
+						sd_spi_init_low_state = sd_spi_init_low_state_try_stop;
+					} else {
+						sd_spi_init_low_state = sd_spi_init_low_state_Slow_2;
+					}
+				}
+			}
+			break;
+		}
+		case sd_spi_init_low_state_try_stop : {
+			SD_CS = 0;
+			_sync();
+			SendMMCCmd_Async_Start(STOP_TRANSMISSION, 0x0);
+			sd_spi_init_low_state = sd_spi_init_low_state_try_stop_wait;
+			break;
+		}
+		case sd_spi_init_low_state_try_stop_wait : {
+			if (SendMMCCmd_Async_Poll() == 1) {
+				response = SendMMCCmd_Async_Response();
+				SD_CS = 1;
+				_sync();
+				//Now retry to send send CMD0 to perform software reset on the media
+				spi_unlock(SPI_USER_SDCARD);
+				sd_spi_init_low_state = sd_spi_init_low_state_First;
+			}
+			break;
+		}
+		case sd_spi_init_low_state_Init : {
+			sd_spi_high_level_init();    //Can block and take a long time to execute.
+			if (sd_spi_mediaInformation.errorCode == MEDIA_BUSY) {
+				//Need to wait since asynch is still running.
+			} else if (sd_spi_mediaInformation.errorCode == MEDIA_NO_ERROR) {
+				/* if the card was initialized correctly, it means it is present */
+				spi_unlock(SPI_USER_SDCARD);
+				sd_spi_init_low_state = sd_spi_init_low_state_Finish;
+				break;
+			} else {
+				spi_unlock(SPI_USER_SDCARD);
+				sd_spi_init_low_state = sd_spi_init_low_state_First;
+				break;
+			}
+			break;
+		}
+		case sd_spi_init_low_state_Finish : {
+			#ifdef SD_SPI_USE_BLOCKING_LOW_LEVEL_INIT
+				if (spi_lock(SPI_USER_SDCARD) == SPI_USER_SDCARD) {
+					{
+						unsigned char SMP = 1;
+						unsigned char MODE = 0;
+						unsigned int BRG = SDSPI_BRG_HIGH;
+						spi_reconfigure_mode(SPI_USER_SDCARD, SMP, MODE, BRG);
+					}
+					//The SPI module was already enabled.  This most likely means the media is
+					//present and has already been initialized.  However, it is possible that
+					//the user could have unplugged the media, in which case it is no longer
+					//present.  We should send it a command, to check the status.
+					response = SendMMCCmd(SEND_STATUS, 0x0);
+					if((response.r2._word & 0xEC0C) != 0x0000) {
+						sd_spi_MediaDetected = 0;
+					} else {
+						//The CMD13 response to SEND_STATUS was valid.  This presumably
+						//means the card is present and working normally.
+						sd_spi_MediaDetected = 1;
+					}
+					spi_unlock(SPI_USER_SDCARD);
+					sd_spi_init_low_state = sd_spi_init_low_state_First;
+				}
+			#else
+				if (spi_lock(SPI_USER_SDCARD) == SPI_USER_SDCARD) {
+					{
+						unsigned char SMP = 1;
+						unsigned char MODE = 0;
+						unsigned int BRG = SDSPI_BRG_HIGH;
+						spi_reconfigure_mode(SPI_USER_SDCARD, SMP, MODE, BRG);
+					}
+					//The SPI module was already enabled.  This most likely means the media is
+					//present and has already been initialized.  However, it is possible that
+					//the user could have unplugged the media, in which case it is no longer
+					//present.  We should send it a command, to check the status.
+					SendMMCCmd_Async_Start(SEND_STATUS, 0x0);
+					sd_spi_init_low_state = sd_spi_init_low_state_Finish_wait;
+				}
+			#endif
+			break;
+		}
+		#ifndef SD_SPI_USE_BLOCKING_LOW_LEVEL_INIT
+		case sd_spi_init_low_state_Finish_wait : {
+			if (SendMMCCmd_Async_Poll() == 1) {
+				response = SendMMCCmd_Async_Response();
+				if((response.r2._word & 0xEC0C) != 0x0000) {
+					sd_spi_MediaDetected = 0;
+				} else {
+					//The CMD13 response to SEND_STATUS was valid.  This presumably
+					//means the card is present and working normally.
+					sd_spi_MediaDetected = 1;
+				}
+				spi_unlock(SPI_USER_SDCARD);
+				sd_spi_init_low_state = sd_spi_init_low_state_First;
+			}
+			break;
+		}
+		#endif
+		default : {
+			sd_spi_init_low_state = sd_spi_init_low_state_First;
+			break;
+		}
+	}
+}
+
+static void sd_spi_high_level_init(void) {
 	WORD timeout;
 	BYTE CSDResponse[20];
-	BYTE count, index;
+	BYTE count;
+	BYTE index;
 	DWORD c_size;
 	BYTE c_size_mult;
 	BYTE block_len;
-	WORD x = 0;
 	MMC_RESPONSE response;
-	//CSD CSDResponseStructured;
 
-	switch (do_MDD_SDSPI_MediaInitializeState) {
-		case 0 : {
+	switch (sd_spi_init_high_state) {
+		case sd_spi_init_high_state_0 : {
 			//Initialize global variables.  Will get updated later with valid data once
 			//the data is known.
-			mediaInformation.errorCode = MEDIA_BUSY;
-			mediaInformation.validityFlags.value = 0;
-			MDD_SDSPI_finalLBA = 0x00000000;	//Will compute a valid size later, from the CSD register values we get from the card
-			gSDMode = SD_MODE_NORMAL;           //Will get updated later with real value, once we know based on initialization flow.
+			sd_spi_mediaInformation.errorCode = MEDIA_BUSY;
+			sd_spi_mediaInformation.validityFlags.value = 0;
+			sd_spi_finalLBA = 0x00000000;	//Will compute a valid size later, from the CSD register values we get from the card
+			sd_spi_gSDMode = SD_MODE_NORMAL;           //Will get updated later with real value, once we know based on initialization flow.
 
-			SD_CS = 1;               //Initialize Chip Select line (1 = card not selected)
-			_sync();
-
-			//MMC media powers up in the open-drain mode and cannot handle a clock faster
-			//than 400kHz. Initialize SPI port to <= 400kHz
-			{
-				unsigned char SMP = 1;
-				unsigned char CKP = 0;
-				unsigned char CKE = 1;
-				unsigned int BRG = SDSPI_BRG_LOW;
-				spi_reconfigure(SPI_USER_SDCARD, SMP, CKP, CKE, BRG);
-			}
-			
-			//Media wants the longer of: Vdd ramp time, 1 ms fixed delay, or 74+ clock pulses.
-			//According to spec, CS should be high during the 74+ clock pulses.
-			//In practice it is preferrable to wait much longer than 1ms, in case of
-			//contact bounce, or incomplete mechanical insertion (by the time we start
-			//accessing the media). 
-			write_timer(&do_MDD_SDSPI_MediaInitializeTimer, 1000);
-			do_MDD_SDSPI_MediaInitializeState = 1;
+			sd_spi_init_high_state = sd_spi_init_high_state_1;
 			break;
 		}
-		case 1 : {
-			if (read_timer(&do_MDD_SDSPI_MediaInitializeTimer) == 0) {
-				SD_CS = 1;
-				_sync();
-				//Generate 80 clock pulses.
-				for(x = 0; x < 10u; x++) {
-					ReadWriteSPIM(0xFF);
-				}
-
-				// Send CMD0 (with CS = 0) to reset the media and put SD cards into SPI mode.
-				x = 100;
-
-				do_MDD_SDSPI_MediaInitializeState = 11;
-			}
-			break;
-		}
-		case 11 : {
-			//Toggle chip select, to make media abandon whatever it may have been doing
-			//before.  This ensures the CMD0 is sent freshly after CS is asserted low,
-			//minimizing risk of SPI clock pulse master/slave syncronization problems, 
-			//due to possible application noise on the SCK line.
-			SD_CS = 1;
-			_sync();
-			ReadWriteSPIM(0xFF);   //Send some "extraneous" clock pulses.  If a previous
-								  //command was terminated before it completed normally,
-								  //the card might not have received the required clocking
-								  //following the transfer.
-			SD_CS = 0;
-			_sync();
-			x--;
-
-			//Send CMD0 to software reset the device
-			SendMMCCmd_Async_Start(GO_IDLE_STATE, 0x0);
-			do_MDD_SDSPI_MediaInitializeState = 12;
-			break;
-		}
-		case 12 : {
-			if (SendMMCCmd_Async_Poll() == 1) {
-				response = SendMMCCmd_Async_Response();
-				if (response.r1._byte == 0x01) {
-					do_MDD_SDSPI_MediaInitializeState = 13;
-				} else if (x == 0) {
-					do_MDD_SDSPI_MediaInitializeState = 13;
-				}
-			}
-			break;
-		}
-		case 13 : {
-			//Check if all attempts failed and we timed out.  Normally, this won't happen,
-			//unless maybe the SD card was busy, because it was previously performing a
-			//read or write operation, when it was interrupted by the microcontroller getting
-			//reset or power cycled, without also resetting or power cycling the SD card.
-			//In this case, the SD card may still be busy (ex: trying to respond with the 
-			//read request data), and may not be ready to process CMD0.  In this case,
-			//we can try to recover by issuing CMD12 (STOP_TRANSMISSION).
-			if(x == 0)
-			{
-				SD_CS = 1;
-				_sync();
-				ReadWriteSPIM(0xFF);       //Send some "extraneous" clock pulses.  If a previous
-										  //command was terminated before it completed normally,
-										  //the card might not have received the required clocking
-										  //following the transfer.
-				SD_CS = 0;
-				_sync();
-				//Send CMD12, to stop any read/write transaction that may have been in progress
-				SendMMCCmd_Async_Start(STOP_TRANSMISSION, 0x0);
-				do_MDD_SDSPI_MediaInitializeState = 14;
-			}//if(x == 0) [for the CMD0 transmit loop]
-			else
-			{
-				do_MDD_SDSPI_MediaInitializeState = 2;
-			}
-			break;
-		}
-        case 14 : {
-			if (SendMMCCmd_Async_Poll() == 1) {
-				response = SendMMCCmd_Async_Response();    //Blocks until SD card signals non-busy
-				//Now retry to send send CMD0 to perform software reset on the media
-				SendMMCCmd_Async_Start(GO_IDLE_STATE, 0x0);
-				do_MDD_SDSPI_MediaInitializeState = 15;
-			} 
-            break;
-        }
-        case 15 : {
-			if (SendMMCCmd_Async_Poll() == 1) {
-				response = SendMMCCmd_Async_Response();    //Blocks until SD card signals non-busy
-				if(response.r1._byte != 0x01) //Check if card in idle state now.
-				{
-					//Card failed to process CMD0 yet again.  At this point, the proper thing
-					//to do would be to power cycle the card and retry, if the host 
-					//circuitry supports disconnecting the SD card power.  Since the
-					//SD/MMC PICtail+ doesn't support software controlled power removal
-					//of the SD card, there is nothing that can be done with this hardware.
-					//Therefore, we just give up now.  The user needs to physically 
-					//power cycle the media and/or the whole board.
-					mediaInformation.errorCode = MEDIA_CANNOT_INITIALIZE;
-					do_MDD_SDSPI_MediaInitializeState = 0;
-					#warning TODO this use case must be fixed somehow
-					break;
-				}
-				else
-				{
-					do_MDD_SDSPI_MediaInitializeState = 2;
-					//Card successfully processed CMD0 and is now in the idle state.
-				}
-			}
-            break;
-        }
-		case 2 : {
+		case sd_spi_init_high_state_1 : {
 			//Send CMD8 (SEND_IF_COND) to specify/request the SD card interface condition (ex: indicate what voltage the host runs at).
 			//0x000001AA --> VHS = 0001b = 2.7V to 3.6V.  The 0xAA LSB is the check pattern, and is arbitrary, but 0xAA is recommended (good blend of 0's and '1's).
 			//The SD card has to echo back the check pattern correctly however, in the R7 response.
@@ -1754,26 +1231,26 @@ static void do_MDD_SDSPI_MediaInitialize(void) {
 	
 				//Send CMD58 (Read OCR [operating conditions register]).  Reponse type is R3, which has 5 bytes.
 				//Byte 4 = normal R1 response byte, Bytes 3-0 are = OCR register value.
-				response = SendMMCCmd(READ_OCR, 0x0);
+				response = SendMMCCmd(READ_OCR, 0x0);//CMD58
 				//Now that we have the OCR register value in the reponse packet, we could parse
 				//the register contents and learn what voltage the SD card wants to run at.
 				//If our host circuitry has variable power supply capability, it could 
 				//theoretically adjust the SD card Vdd to the minimum of the OCR to save power.
-				write_timer(&do_MDD_SDSPI_MediaInitializeTimer, 2000);
-				do_MDD_SDSPI_MediaInitializeState = 3;
-			}//if(((response.r7.bytewise._returnVal & 0xFFF) == 0x1AA) && (!response.r7.bitwise.bits.ILLEGAL_CMD))
+				write_timer(&sd_spi_global_shared_timer, 2000);
+				sd_spi_init_high_state = sd_spi_init_high_state_2;
+			}
 			else
 			{
 				SD_CS = 1;                              // deselect the devices
 				_sync();
-				do_MDD_SDSPI_MediaInitializeState = 4;
+				sd_spi_init_high_state = sd_spi_init_high_state_3;
 			}
 			break;
 		}
-		case 3 : {
+		case sd_spi_init_high_state_2 : {
 			//Now send CMD55/ACMD41 in a loop, until the card is finished with its internal initialization.
 			//Note: SD card specs recommend >= 1 second timeout while waiting for ACMD41 to signal non-busy.
-			if (read_timer(&do_MDD_SDSPI_MediaInitializeTimer) != 0) {
+			if (read_timer(&sd_spi_global_shared_timer) != 0) {
 				//Send CMD55 (lets SD card know that the next command is application specific (going to be ACMD41)).
 				SendMMCCmd(APP_CMD, 0x00000000);
 				
@@ -1796,44 +1273,44 @@ static void do_MDD_SDSPI_MediaInitialize(void) {
 					//This will tell us if it is a SD high capacity (SDHC) or standard capacity device.
 					if(response.r7.bytewise.argument._returnVal & 0x40000000)    //Note the HCS bit is only valid when the busy bit is also set (indicating device ready).
 					{
-						gSDMode = SD_MODE_HC;
+						sd_spi_gSDMode = SD_MODE_HC;
 					}				
 					else
 					{
-						gSDMode = SD_MODE_NORMAL;
+						sd_spi_gSDMode = SD_MODE_NORMAL;
 					} 
 					//SD Card should now be finished with initialization sequence.  Device should be ready
 					//for read/write commands.
 					//Temporarily deselect device
 					SD_CS = 1;
 					_sync();
-					do_MDD_SDSPI_MediaInitializeState = 5;
+					sd_spi_init_high_state = sd_spi_init_high_state_4;
 				}	
 			} else {
-				mediaInformation.errorCode = MEDIA_CANNOT_INITIALIZE;
-				do_MDD_SDSPI_MediaInitializeState = 0;
+				sd_spi_mediaInformation.errorCode = MEDIA_CANNOT_INITIALIZE;
+				sd_spi_init_high_state = sd_spi_init_high_state_0;
 			}
 			break;
 		}
-		case 4 : {
+		case sd_spi_init_high_state_3 : {
 			//The CMD8 wasn't supported.  This means the card is not a v2.0 card.
 			//Presumably the card is v1.x device, standard capacity (not SDHC).
-			write_timer(&do_MDD_SDSPI_MediaInitializeTimer, 20);
-			do_MDD_SDSPI_MediaInitializeState = 41;
+			write_timer(&sd_spi_global_shared_timer, 20);
+			sd_spi_init_high_state = sd_spi_init_high_state_31;
 			break;
 		}
-		case 41 : {
-			if (read_timer(&do_MDD_SDSPI_MediaInitializeTimer) == 0) {
+		case sd_spi_init_high_state_31 : {
+			if (read_timer(&sd_spi_global_shared_timer) == 0) {
 				//The CMD8 wasn't supported.  This means the card is definitely not a v2.0 SDHC card.
-				gSDMode = SD_MODE_NORMAL;
+				sd_spi_gSDMode = SD_MODE_NORMAL;
 				// According to the spec CMD1 must be repeated until the card is fully initialized
-				write_timer(&do_MDD_SDSPI_MediaInitializeTimer, 2000);
-				do_MDD_SDSPI_MediaInitializeState = 42;
+				write_timer(&sd_spi_global_shared_timer, 2000);
+				sd_spi_init_high_state = sd_spi_init_high_state_32;
 			}
 			break;
 		}
-		case 42 : {
-			if (read_timer(&do_MDD_SDSPI_MediaInitializeTimer) != 0) {
+		case sd_spi_init_high_state_32 : {
+			if (read_timer(&sd_spi_global_shared_timer) != 0) {
 				SD_CS = 0;                              // select the device
 				_sync();
 				//Send CMD1 to initialize the media.
@@ -1845,19 +1322,19 @@ static void do_MDD_SDSPI_MediaInitialize(void) {
 					//the default size selected on cards that support other sizes as well.
 					//response = SendMMCCmd(SET_BLOCKLEN, 0x00000200);    //Set read/write block length to 512 bytes
 					
-					do_MDD_SDSPI_MediaInitializeState = 5;
+					sd_spi_init_high_state = sd_spi_init_high_state_4;
 				} else {
 					//Retry
 				}
 				SD_CS = 1;
 				_sync();
 			} else {
-				mediaInformation.errorCode = MEDIA_CANNOT_INITIALIZE;
-				do_MDD_SDSPI_MediaInitializeState = 0;
+				sd_spi_mediaInformation.errorCode = MEDIA_CANNOT_INITIALIZE;
+				sd_spi_init_high_state = sd_spi_init_high_state_0;
 			}
 			break;
 		}
-		case 5 : {
+		case sd_spi_init_high_state_4 : {
 			//Basic initialization of media is now complete.  The card will now use push/pull
 			//outputs with fast drivers.  Therefore, we can now increase SPI speed to 
 			//either the maximum of the microcontroller or maximum of media, whichever 
@@ -1865,10 +1342,9 @@ static void do_MDD_SDSPI_MediaInitialize(void) {
 			//SD cards would typically operate at up to 25Mbps or higher SPI speeds.
 			{
 				unsigned char SMP = 1;
-				unsigned char CKP = 1;
-				unsigned char CKE = 0;
+				unsigned char MODE = 0;
 				unsigned int BRG = SDSPI_BRG_HIGH;
-				spi_reconfigure(SPI_USER_SDCARD, SMP, CKP, CKE, BRG);
+				spi_reconfigure_mode(SPI_USER_SDCARD, SMP, MODE, BRG);
 			}
 			SD_CS = 0;
 			_sync();
@@ -1887,10 +1363,10 @@ static void do_MDD_SDSPI_MediaInitialize(void) {
 			else
 			{
 				//Media failed to respond to the read CSD register operation.
-				mediaInformation.errorCode = MEDIA_CANNOT_INITIALIZE;
+				sd_spi_mediaInformation.errorCode = MEDIA_CANNOT_INITIALIZE;
 				SD_CS = 1;
 				_sync();
-				do_MDD_SDSPI_MediaInitializeState = 0;
+				sd_spi_init_high_state = sd_spi_init_high_state_0;
 				break;
 			}
 
@@ -1900,7 +1376,7 @@ static void do_MDD_SDSPI_MediaInitialize(void) {
 			index = 0;
 			for (count = 0; count < 20u; count ++)
 			{
-				CSDResponse[index] = ReadWriteSPIM(0xFF);
+				CSDResponse[index] = sd_spi_read_write_spi(0xFF);
 				index++;			
 				/* Hopefully the first byte is the datatoken, however, some cards do
 				not send the response token before the CSD register.*/
@@ -1933,15 +1409,15 @@ static void do_MDD_SDSPI_MediaInitialize(void) {
 			//simply ignore the READ_BL_LEN and WRITE_BL_LEN values altogether,
 			//and simply hardcode the read/write block size as 512 bytes.
 			//-------------------------------------------------------------
-			gMediaSectorSize = 512u;
-			mediaInformation.sectorSize = gMediaSectorSize;
-			mediaInformation.validityFlags.bits.sectorSize = TRUE;
+			sd_spi_gMediaSectorSize = 512u;
+			sd_spi_mediaInformation.sectorSize = sd_spi_gMediaSectorSize;
+			sd_spi_mediaInformation.validityFlags.bits.sectorSize = TRUE;
 			//-------------------------------------------------------------
 
-			//Calculate the MDD_SDSPI_finalLBA (see SD card physical layer simplified spec 2.0, section 5.3.2).
+			//Calculate the sd_spi_finalLBA (see SD card physical layer simplified spec 2.0, section 5.3.2).
 			//In USB mass storage applications, we will need this information to 
 			//correctly respond to SCSI get capacity requests.  Note: method of computing 
-			//MDD_SDSPI_finalLBA depends on CSD structure spec version (either v1 or v2).
+			//sd_spi_finalLBA depends on CSD structure spec version (either v1 or v2).
 			if(CSDResponse[0] & 0xC0)	//Check CSD_STRUCTURE field for v2+ struct device
 			{
 				//Must be a v2 device (or a reserved higher version, that doesn't currently exist)
@@ -1950,7 +1426,7 @@ static void do_MDD_SDSPI_MediaInitialize(void) {
 				//It spans bytes 7, 8, and 9 of the response.
 				c_size = (((DWORD)CSDResponse[7] & 0x3F) << 16) | ((WORD)CSDResponse[8] << 8) | CSDResponse[9];
 				
-				MDD_SDSPI_finalLBA = ((DWORD)(c_size + 1) * (WORD)(1024u)) - 1; //-1 on end is correction factor, since LBA = 0 is valid.
+				sd_spi_finalLBA = ((DWORD)(c_size + 1) * (WORD)(1024u)) - 1; //-1 on end is correction factor, since LBA = 0 is valid.
 			}
 			else //if(CSDResponse[0] & 0xC0)	//Check CSD_STRUCTURE field for v1 struct device
 			{
@@ -1969,31 +1445,31 @@ static void do_MDD_SDSPI_MediaInitialize(void) {
 
 				block_len = 1 << (block_len - 9); //-9 because we report the size in sectors of 512 bytes each
 				
-				//Calculate the MDD_SDSPI_finalLBA (see SD card physical layer simplified spec 2.0, section 5.3.2).
+				//Calculate the sd_spi_finalLBA (see SD card physical layer simplified spec 2.0, section 5.3.2).
 				//In USB mass storage applications, we will need this information to 
 				//correctly respond to SCSI get capacity requests (which will cause MDD_SDSPI_ReadCapacity() to get called).
-				MDD_SDSPI_finalLBA = ((DWORD)(c_size + 1) * (WORD)((WORD)1 << (c_size_mult + 2)) * block_len) - 1;	//-1 on end is correction factor, since LBA = 0 is valid.		
+				sd_spi_finalLBA = ((DWORD)(c_size + 1) * (WORD)((WORD)1 << (c_size_mult + 2)) * block_len) - 1;	//-1 on end is correction factor, since LBA = 0 is valid.		
 			}	
 
 			//Turn off CRC7 if we can, might be an invalid cmd on some cards (CMD59)
 			//Note: POR default for the media is normally with CRC checking off in SPI 
 			//mode anyway, so this is typically redundant.
-			SendMMCCmd(CRC_ON_OFF,0x0);
+			SendMMCCmd(CRC_ON_OFF, 0x0);
 
 			//Now set the block length to media sector size. It should be already set to this.
-			SendMMCCmd(SET_BLOCKLEN,gMediaSectorSize);
+			SendMMCCmd(SET_BLOCKLEN, sd_spi_gMediaSectorSize);
 
 			//Deselect media while not actively accessing the card.
 			SD_CS = 1;
 			_sync();
 
-			mediaInformation.errorCode = MEDIA_NO_ERROR;
-			do_MDD_SDSPI_MediaInitializeState = 0;
+			sd_spi_mediaInformation.errorCode = MEDIA_NO_ERROR;
+			sd_spi_init_high_state = sd_spi_init_high_state_0;
 			break;
 		}
 		
 		default : { 
-			do_MDD_SDSPI_MediaInitializeState = 0;
+			sd_spi_init_high_state = sd_spi_init_high_state_0;
 			break;
 		}
 	}

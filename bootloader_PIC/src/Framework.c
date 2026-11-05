@@ -43,7 +43,7 @@
 #include "Framework.h"
 #include "NVMem.h"
 #include <string.h>
-#include <plib.h>
+#include "my_plib.h"
 
 
 #define DATA_RECORD 		0

@@ -3,6 +3,9 @@
 
 #error You have included an example of c_vs1053.h
 
+#define VS1053_USE_SPI
+//#define VS1053_USE_SPI_SW
+
 #define VS1053_XRESET_TRIS 	TRISBbits.TRISB13
 #define VS1053_XRESET_PORT	PORTBbits.RB13
 #define VS1053_XRESET_LAT 	LATBbits.LATB13

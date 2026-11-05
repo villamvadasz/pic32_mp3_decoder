@@ -70,4 +70,17 @@
 	extern __attribute__(( weak )) void do_wakeup(void);
 	extern __attribute__(( weak )) void isr_sx1276_1ms(void);
 	
+	extern __attribute__(( weak )) void init_app_mqtt(void) {} 
+	extern __attribute__(( weak )) void do_app_mqtt(void) {} 
+	extern __attribute__(( weak )) void isr_app_mqtt_1ms(void) {} 
+
+	extern __attribute__(( weak )) void init_app_rfe(void) {} 
+	extern __attribute__(( weak )) void do_app_rfe(void) {} 
+	extern __attribute__(( weak )) void isr_app_rfe_1ms(void) {} 
+
+	extern __attribute__(( weak )) void init_app_bootloader(void) {}
+	extern __attribute__(( weak )) void do_app_bootloader(void) {}
+	extern __attribute__(( weak )) void isr_app_bootloader_1ms(void) {}
+
+	
 #endif

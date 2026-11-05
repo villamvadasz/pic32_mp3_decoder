@@ -390,7 +390,11 @@ void __ISR(_EXTERNAL_4_VECTOR, IPL3SOFT)__EINT4nterrupt(void) {
 		#ifdef __32MX440F256H__
 	        clear_isr(IFS0CLR, _IFS0_INT4IF_POSITION);
 		#else
-			#error Not implemented
+			#ifdef __32MX795F512H__
+		        clear_isr(IFS0CLR, _IFS0_INT4IF_POSITION);
+			#else
+				#error Not implemented
+			#endif
 		#endif
 		isr_dht11_external_interrupt();
 	#endif

@@ -30,7 +30,7 @@ __attribute__(( weak )) void do_ccs811(void) {}
 __attribute__(( weak )) void deinit_ccs811(void) {} 
 __attribute__(( weak )) void isr_ccs811_1ms(void) {} 
 
-__attribute__(( weak )) unsigned char getBME280Temp_update(void) { return 0;}
+__attribute__(( weak )) unsigned char getBME280Temp_update(void) { return 1;}
 __attribute__(( weak )) float getBME280Temp(void) { return 0.0; }
 __attribute__(( weak )) float getBME280Pressure(void) { return 0.0; }
 __attribute__(( weak )) float getBME280Altitude(void) { return 0.0; }
@@ -52,6 +52,7 @@ __attribute__(( weak )) void isr_wifi_1ms(void) {}
 
 __attribute__(( weak )) void init_serial_usb(void) {}
 __attribute__(( weak )) void init_usb(void) {}
+__attribute__(( weak )) void deinit_usb(void) {}
 __attribute__(( weak )) void do_usb(void) {}
 __attribute__(( weak )) void do_serial_usb(void) {}
 __attribute__(( weak )) void isr_usb_1ms(void) {}
@@ -63,7 +64,11 @@ __attribute__(( weak )) void isr_spi_sw_1ms(void) {}
 
 __attribute__(( weak )) void init_sx1276(void) {}
 __attribute__(( weak )) void do_sx1276(void) {}
+__attribute__(( weak )) void deinit_sx1276(void) {}
 __attribute__(( weak )) void isr_sx1276_100us(void) {}
+__attribute__(( weak )) void sx1276_eepManager_NotifyUserFailedRead(int item, uint8 type) {}
+__attribute__(( weak )) uint8 System_ExternalEui[8] = {0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF};
+__attribute__(( weak )) uint8 sx1276_eeprom_structure[1] = {0};
 
 __attribute__(( weak )) void init_wakeup(void) {}
 __attribute__(( weak )) void do_wakeup(void) {}
@@ -88,3 +93,19 @@ __attribute__(( weak )) void isr_sio_1ms(void) {}
 __attribute__(( weak )) void init_random(void) {}
 __attribute__(( weak )) void do_random(void) {}
 __attribute__(( weak )) void isr_random_1ms(void) {}
+
+__attribute__(( weak )) void init_app_lorawan(void) {}
+__attribute__(( weak )) void do_app_lorawan(void) {}
+__attribute__(( weak )) void isr_app_lorawan_1ms(void) {}
+
+__attribute__(( weak )) void init_app_mqtt(void) {} 
+__attribute__(( weak )) void do_app_mqtt(void) {} 
+__attribute__(( weak )) void isr_app_mqtt_1ms(void) {} 
+
+__attribute__(( weak )) void init_app_rfe(void) {} 
+__attribute__(( weak )) void do_app_rfe(void) {} 
+__attribute__(( weak )) void isr_app_rfe_1ms(void) {} 
+
+__attribute__(( weak )) void init_app_bootloader(void) {}
+__attribute__(( weak )) void do_app_bootloader(void) {}
+__attribute__(( weak )) void isr_app_bootloader_1ms(void) {}

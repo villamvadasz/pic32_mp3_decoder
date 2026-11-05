@@ -41,7 +41,7 @@
 #include "BootLoader.h"
 #include "Framework.h"
 #include "NVMem.h"
-#include <plib.h>
+#include "my_plib.h"
 
 
 const UINT countPerMicroSec = ((SYS_FREQ/1000000)/2);

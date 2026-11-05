@@ -6,14 +6,21 @@
 
 #include "fatfs.h"
 
-#include "spi_sw.h"
-#include "c_spi_sw.h"
-#define SPI_USER_VS1053 SPI_SW_USER_VS1053
-#define spi_calculate_BRG spi_sw_calculate_BRG
-#define spi_lock spi_sw_lock
-#define spi_unlock spi_sw_unlock
-#define spi_reconfigure spi_sw_reconfigure
-#define spi_readWrite_synch spi_sw_readWrite_synch
+#ifdef VS1053_USE_SPI
+	#include "spi.h"
+	#include "c_spi.h"
+#endif
+
+#ifdef VS1053_USE_SPI_SW
+	#include "spi_sw.h"
+	#include "c_spi_sw.h"
+	#define SPI_USER_VS1053 SPI_SW_USER_VS1053
+	#define spi_calculate_BRG spi_sw_calculate_BRG
+	#define spi_lock spi_sw_lock
+	#define spi_unlock spi_sw_unlock
+	#define spi_reconfigure spi_sw_reconfigure
+	#define spi_readWrite_synch spi_sw_readWrite_synch
+#endif
 
 
 //VS10xx SCI Registers
@@ -78,7 +85,7 @@ uint16 MP3Clock = 0;
 uint8 vs1053_doWriteStream = 0;
 uint8 vs1053_sizeWork = 0;
 uint8 vs1053_sizeWorkToTransmit = 4;
-uint8 *vs1053_SteamBuffer = NULL;
+uint8 *vs1053_StreamBuffer = NULL;
 
 uint8 vs1053_lefchannel = 0;
 uint8 vs1053_rightchannel = 0;
@@ -110,6 +117,7 @@ void init_vs1053(void) {
 }
 
 void do_vs1053(void) {
+	
 	if (do_vs1053_1ms) {
 		do_vs1053_1ms = 0;
 		do_vs1053_task_1ms();
@@ -123,7 +131,7 @@ void do_vs1053(void) {
 			if ((vs1053_buffer_size - vs1053_sizeWork) < vs1053_sizeWorkToTransmit) {
 				size = (vs1053_buffer_size - vs1053_sizeWork);
 			}
-			spi_readWrite_synch(SPI_USER_VS1053, vs1053_SteamBuffer + vs1053_sizeWork, vs1053_bufferIn + vs1053_sizeWork, size);
+			spi_readWrite_synch(SPI_USER_VS1053, vs1053_StreamBuffer + vs1053_sizeWork, vs1053_bufferIn + vs1053_sizeWork, size);
 			VS1053_XDCS_LAT = 1;//Deselect control
 			vs1053_sizeWork += vs1053_sizeWorkToTransmit;
 			if (vs1053_sizeWork >= vs1053_buffer_size) {
@@ -215,7 +223,7 @@ uint8 vs1053_WriteStream_nb(uint8 *ptr, uint16 size) {
 			if (VS1053_State == VS1053_States_Idle) {
 				if (vs1053_doWriteStream == 0) {
 					//memcpy(vs1053_bufferOut, ptr, size);
-					vs1053_SteamBuffer = ptr;//Caller must hold the buffer
+					vs1053_StreamBuffer = ptr;//Caller must hold the buffer
 					vs1053_buffer_size = size;
 					vs1053_doWriteStream = 1;
 					vs1053_sizeWork = 0;

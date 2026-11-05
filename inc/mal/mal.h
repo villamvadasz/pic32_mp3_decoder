@@ -52,6 +52,18 @@
 	extern unsigned int hexStringToInt(unsigned char *str);
 	extern unsigned int mal_get_reset_counter(void);
 	
+	#define MAL_DEBUG_LED_SET() {\
+		{\
+			TRISDbits.TRISD1 = 0;\
+			LATDbits.LATD1 = 1;\
+		}\
+	}
+	#define MAL_DEBUG_LED_CLEAR() {\
+		{\
+			TRISDbits.TRISD1 = 0;\
+			LATDbits.LATD1 = 0;\
+		}\
+	}
 	#define MAL_DEBUG_LED_BLINK() {\
 		{\
 			extern unsigned int __attribute__((nomips16)) ReadCoreTimer(void);\

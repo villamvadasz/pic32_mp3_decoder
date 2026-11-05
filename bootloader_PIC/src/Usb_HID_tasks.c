@@ -38,7 +38,7 @@
  **********************************************************************/
 #include <p32xxxx.h>
 #include <stdlib.h>
-#include <plib.h>
+#include "my_plib.h"
 
 
 #include "usb.h"
@@ -176,7 +176,6 @@ void UsbTasks(void)
 {
 	UINT TxLen;
 	UINT8 *TxPtr;
-	volatile test;
 	
 	
 	 #if defined(USB_POLLING)		

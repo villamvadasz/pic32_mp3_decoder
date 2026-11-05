@@ -166,8 +166,9 @@ void sleep_ExecuteSleep(void) {
 }
 
 void __attribute__((nomips16)) PowerSaveSleep(void) {
- 	mSysUnlockOpLock(OSCCONSET = (1 << _OSCCON_SLPEN_POSITION));
-    asm("WAIT");
+	//SLEEP mode
+	mSysUnlockOpLock(OSCCONSET = (1 << _OSCCON_SLPEN_POSITION));
+	asm("WAIT");
 }
 
 unsigned int sleep_stay_in_loop(void) {

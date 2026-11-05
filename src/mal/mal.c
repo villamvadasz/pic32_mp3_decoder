@@ -567,7 +567,23 @@
 			#pragma config FNOSC = PRIPLL
 		#endif
 		#pragma config FWDTEN   = OFF				// Watchdog Timer
-		#pragma config WDTPS	= PS1				// Watchdog Timer Postscale
+		#ifndef APP_SLEEP_MODE
+			#pragma config WDTPS	= PS1				// Watchdog Timer Postscale
+		#else
+			//1:1024 1.024 s
+			//1:2048 2.048 s
+			//1:4096 4.096 s
+			//1:8192 8.192 s
+			//1:16384 16.384 s
+			//#pragma config WDTPS	= PS16384				// Watchdog Timer Postscale
+			//1:32768 32.768 s
+			//1:65536 65.536 s
+			//1:131072 131.072 s		2.2min
+			//1:262144 262.144 s		4.4min
+			//1:524288 524.288 s		8.7min
+			//1:1045876 1048.576 s		17.5min
+			#pragma config WDTPS	= PS1048576				// Watchdog Timer Postscale
+		#endif
 		#pragma config FCKSM	= CSECMD			// Clock Switching & Fail Safe Clock Monitor
 		#pragma config OSCIOFNC = OFF				// CLKO Enable
 		#pragma config IESO	 = OFF				// Internal/External Switch-over

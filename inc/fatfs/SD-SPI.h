@@ -480,15 +480,6 @@ typedef struct
 /*							   Macros									*/
 /***************************************************************************/
 
-// Description: A macro to send clock cycles to dummy-read the CRC
-#define mReadCRC()			  ReadWriteSPIM(0xFF);ReadWriteSPIM(0xFF);
-
-// Description: A macro to send clock cycles to dummy-write the CRC
-#define mSendCRC()			  ReadWriteSPIM(0xFF);ReadWriteSPIM(0xFF);
-
-// Description: A macro to send 8 clock cycles for SD timing requirements
-#define mSend8ClkCycles()	   ReadWriteSPIM(0xFF);
-
 typedef struct 
 {
 	BYTE	errorCode;
@@ -523,10 +514,6 @@ extern void deinit_sd_spi(void);
 extern void do_sd_spi(void);
 extern void isr_sd_spi_1ms(void);
 
-//These are the public API functions provided by SD-SPI.c
-extern void MDD_SDSPI_InitIO(void);	//Called at System init
-extern void MDD_SDSPI_deInitIO(void);	//Called at System init
-
 extern BYTE MDD_SDSPI_MediaDetect(void);
 extern MEDIA_INFORMATION * MDD_SDSPI_MediaInitialize(void);
 extern DWORD MDD_SDSPI_ReadCapacity(void);
@@ -536,13 +523,8 @@ extern BYTE MDD_SDSPI_SectorWrite(DWORD sector_addr, BYTE* buffer, BYTE allowWri
 extern BYTE MDD_SDSPI_WriteProtectState(void);
 extern BYTE MDD_SDSPI_ShutdownMedia(void);
 
-extern void diskIsEncrypted(void);
-extern void diskIsDecrypted(void);
+extern void sd_spi_diskIsEncrypted(void);
+extern void sd_spi_diskIsDecrypted(void);
 
-#if defined __C30__ || defined __C32__
-	extern BYTE ReadByte( BYTE* pBuffer, WORD index );
-	extern WORD ReadWord( BYTE* pBuffer, WORD index );
-	extern DWORD ReadDWord( BYTE* pBuffer, WORD index );
-#endif
 
 #endif

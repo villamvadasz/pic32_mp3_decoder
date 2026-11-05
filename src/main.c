@@ -12,7 +12,7 @@
 #include "tmr.h"
 #include "bootloader_interface.h"
 
-#include "spi_sw.h"
+#include "spi.h"
 #include "c_app.h"
 
 #include "app.h"
@@ -63,7 +63,7 @@ int main (void) {
 	init_tmr(); //this should be the first beceaus it clears registered timers.
 
 	init_io();
-	init_spi_sw();
+	init_spi();
 
 	init_mp3();
 	init_vs1053();
@@ -97,7 +97,7 @@ int main (void) {
 		do_io();
 		do_tmr();
 		do_usb();
-		do_spi_sw();
+		do_spi();
 		do_mp3();
 		do_vs1053();
 		do_dee();
@@ -124,7 +124,7 @@ void isr_main_1ms(void) {
 	isr_eep_manager_1ms();
 	isr_usb_1ms();
 	isr_ad_1ms();
-	isr_spi_sw_1ms();
+	isr_spi_1ms();
 	isr_fatrtc_1ms();
 	isr_fatfs_1ms();
 	isr_sd_spi_1ms();

@@ -14,7 +14,7 @@
 #include "fatfs.h"
 
 //#define APP_DEBUG_PLAY_FIRST_FILE_ALWAYS
-//#define APP_DEBUG_DISABLE_RESET
+#define APP_DEBUG_DISABLE_RESET
 //#define APP_DEBUG_USE_AVA_MAX_FILE
 
 #define APP_FAILSAFE_TIMER 5000
@@ -59,6 +59,7 @@ typedef enum _App_States_FS {
 	App_State_FS_OpenDir,
 	App_State_FS_Iterate,
 	App_State_FS_CloseDir,
+	App_State_FS_Evaluate
 } App_State_FS;
 
 typedef struct _App_Button {
@@ -71,7 +72,7 @@ typedef struct _App_Button {
 
 App_State app_state = App_State_Init;
 App_State_FS app_state_fs = App_State_FS_Init;
-uint8 do_app_1ms = 0;
+volatile uint8 do_app_1ms = 0;
 App_Button app_next_button;
 App_Button app_play_button;
 App_Button app_prev_button;
@@ -90,7 +91,6 @@ uint32 app_failsafe_counter = 0;
 
 char app_fileNameFound[64];
 uint8 app_fileNameFound_updated = 0;
-uint8 app_fileNameFound_updated_nothing_found = 0;
 uint8 app_fileNameFound_direction = 1;//1-forward 0-backward search
 DIR app_dir_fs;
 uint32 app_dir_fs_lastPositionCurrent = 0;
@@ -140,6 +140,7 @@ void init_app(void) {
 
 void do_app(void) {
 	static unsigned char appSingleShoot = 1;
+	
 	if (appSingleShoot) {
 		appSingleShoot = 0;
 		
@@ -216,7 +217,6 @@ void do_app(void) {
 				}
 				case App_State_FS_CheckDisk : {
 					if (fatfs_isDiskReady()) {
-						app_fileNameFound_updated_nothing_found = 0;
 						app_dir_fs_lastPositionCurrent = 0;
 						app_dir_fs_failsafeExitCounter = APP_MAX_FILE_NUMBER_SEARCHING;
 						app_state_fs = App_State_FS_OpenDir;
@@ -231,7 +231,7 @@ void do_app(void) {
 					if (res == FR_OK) {
 						app_state_fs = App_State_FS_Iterate;
 					} else {
-						app_state_fs = App_State_FS_CloseDir;
+						app_state_fs = App_State_FS_Evaluate;
 					}
 					break;
 				}
@@ -241,16 +241,13 @@ void do_app(void) {
 						{
 							FRESULT res;
 							FILINFO fno;
-
 							#ifdef APP_DEBUG_PLAY_FIRST_FILE_ALWAYS
 								app_playFilePosition_NVM = 0;
 							#endif
-
 							memset(fno.fname, 0x00, sizeof(fno.fname));
 							res = f_readdir(&app_dir_fs, &fno);                   /* Read a directory item */
 							if (res == FR_OK) {
 								if (fno.fname[0] == 0) {					/* End of dir */
-									app_playFilePosition_NVM = 0; // Set back to start since not enough file present
 									app_state_fs = App_State_FS_CloseDir;
 								} else if (fno.fattrib & AM_DIR) {                 /* It is a directory */
 									//currently subdirs are ignored
@@ -265,33 +262,35 @@ void do_app(void) {
 										app_fileNameFound[0] = '0';
 										app_fileNameFound[1] = ':';
 										strcpy(app_fileNameFound + 2, fno.fname);
+										if (app_dir_fs_lastPositionCurrent >= app_playFilePosition_NVM) {
+											app_fileNameFound_updated = 1;
+											app_state_fs = App_State_FS_CloseDir;
+										}
+										app_dir_fs_lastPositionCurrent++;
 									}
-									if (app_dir_fs_lastPositionCurrent >= app_playFilePosition_NVM) {
-										app_fileNameFound_updated = 1;
-										app_state_fs = App_State_FS_CloseDir;
-									}
-									app_dir_fs_lastPositionCurrent++;
 								}
 							} else {
-								app_playFilePosition_NVM = 0;
 								app_state_fs = App_State_FS_CloseDir;
 							}
 						}
 					} else {
-						app_playFilePosition_NVM = 0; // Set back to start since not enough file present
 						app_state_fs = App_State_FS_CloseDir;
 					}
 					break;
 				}
 				case App_State_FS_CloseDir : {
+					f_closedir(&app_dir_fs);
+					app_state_fs = App_State_FS_Evaluate;
+					break;
+				}
+				case App_State_FS_Evaluate : {
 					if (app_fileNameFound_updated == 0) {
-						app_fileNameFound_updated_nothing_found = 1;
 
+						app_playFilePosition_NVM = 0;
 						app_fileNameFound_updated = 1;
 						memset(app_fileNameFound, 0, sizeof(app_fileNameFound));
 						strcpy(app_fileNameFound, "0:AVA.MP3");
 					}
-					f_closedir(&app_dir_fs);
 					app_state_fs = App_State_FS_WaitTrigger;
 					break;
 				}
@@ -337,10 +336,6 @@ void do_app(void) {
 									app_failsafe_counter--;
 								}
 								app_state = App_State_Playing;
-							}
-						} else {
-							if (app_fileNameFound_updated_nothing_found) {
-								
 							}
 						}
 					} else {

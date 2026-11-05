@@ -1,6 +1,9 @@
 #ifndef _C_VS1053_H_
 #define _C_VS1053_H_
 
+#define VS1053_USE_SPI
+//#define VS1053_USE_SPI_SW
+
 #define VS1053_XRESET_TRIS 	TRISBbits.TRISB13
 #define VS1053_XRESET_PORT	PORTBbits.RB13
 #define VS1053_XRESET_LAT 	LATBbits.LATB13

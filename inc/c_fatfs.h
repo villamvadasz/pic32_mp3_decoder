@@ -3,17 +3,17 @@
 
 
     // Define the SPI frequency
-	#define SPI_FREQUENCY_SLOW		   400000
-    #define SPI_FREQUENCY			(10000000)
+	#define SPI_FREQUENCY_SLOW		(100000uL)
+    #define SPI_FREQUENCY			(20000000uL)
 	//#warning TODO change back to non debug values
-	//#define SPI_FREQUENCY_SLOW		 100000
-    //#define SPI_FREQUENCY			(150000)
+	//#define SPI_FREQUENCY_SLOW		 (100000)
+    //#define SPI_FREQUENCY			(1000000)
 
-    //#define FATFS_USE_SPI
+    #define FATFS_USE_SPI
 	//#define SDSPI_USE_DEM
     //#define FATFS_USE_SPI2
     //#define FATFS_USE_SPI4
-    #define FATFS_USE_SPI_SW
+    //#define FATFS_USE_SPI_SW
 
 	//External SD Card holder
     #define SD_CS				PORTBbits.RB14
