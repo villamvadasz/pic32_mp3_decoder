@@ -1,37 +1,37 @@
 @echo off
 cls
-del /q .\out\*.d
-del /q .\out\*.o
-del /q .\out\*.hex
-del /q .\out\*.map
-del /q .\out\*.elf
-del /q .\out\USBHIDBootloader_updater_440F256H.hex
+del /q .\output\*.d
+del /q .\output\*.o
+del /q .\output\*.hex
+del /q .\output\*.map
+del /q .\output\*.elf
+del /q .\output\USBHIDBootloader_updater_440F256H.hex
 .\make\make.exe -f Makefile_440F256H clean
 .\make\make.exe -f Makefile_440F256H all -j8
-copy .\out\USBHIDBootloader_updater.hex .\out\USBHIDBootloader_updater_440F256H.hex
-copy .\out\USBHIDBootloader_updater.map .\out\USBHIDBootloader_updater_440F256H.map
+copy .\output\USBHIDBootloader_updater.hex .\output\USBHIDBootloader_updater_440F256H.hex
+copy .\output\USBHIDBootloader_updater.map .\output\USBHIDBootloader_updater_440F256H.map
 .\make\make.exe -f Makefile_440F256H clean
 
-del /q .\out\USBHIDBootloader_updater_470F512H.hex
+del /q .\output\USBHIDBootloader_updater_470F512H.hex
 .\make\make.exe -f Makefile_470F512H clean
 .\make\make.exe -f Makefile_470F512H all -j8
-copy .\out\USBHIDBootloader_updater.hex .\out\USBHIDBootloader_updater_470F512H.hex
-copy .\out\USBHIDBootloader_updater.map .\out\USBHIDBootloader_updater_470F512H.map
+copy .\output\USBHIDBootloader_updater.hex .\output\USBHIDBootloader_updater_470F512H.hex
+copy .\output\USBHIDBootloader_updater.map .\output\USBHIDBootloader_updater_470F512H.map
 .\make\make.exe -f Makefile_470F512H clean
 
-del /q .\out\USBHIDBootloader_updater_460F512L.hex
+del /q .\output\USBHIDBootloader_updater_460F512L.hex
 .\make\make.exe -f Makefile_460F512L clean
 .\make\make.exe -f Makefile_460F512L all -j8
-copy .\out\USBHIDBootloader_updater.hex .\out\USBHIDBootloader_updater_460F512L.hex
-copy .\out\USBHIDBootloader_updater.map .\out\USBHIDBootloader_updater_460F512L.map
+copy .\output\USBHIDBootloader_updater.hex .\output\USBHIDBootloader_updater_460F512L.hex
+copy .\output\USBHIDBootloader_updater.map .\output\USBHIDBootloader_updater_460F512L.map
 .\make\make.exe -f Makefile_460F512L clean
-del /q .\out\USBHIDBootloader_updater.map
+del /q .\output\USBHIDBootloader_updater.map
 
-del /q .\out\USBHIDBootloader_updater_470F512L.hex
+del /q .\output\USBHIDBootloader_updater_470F512L.hex
 .\make\make.exe -f Makefile_470F512L clean
 .\make\make.exe -f Makefile_470F512L all -j8
-copy .\out\USBHIDBootloader_updater.hex .\out\USBHIDBootloader_updater_470F512L.hex
-copy .\out\USBHIDBootloader_updater.map .\out\USBHIDBootloader_updater_470F512L.map
+copy .\output\USBHIDBootloader_updater.hex .\output\USBHIDBootloader_updater_470F512L.hex
+copy .\output\USBHIDBootloader_updater.map .\output\USBHIDBootloader_updater_470F512L.map
 .\make\make.exe -f Makefile_470F512L clean
-del /q .\out\USBHIDBootloader_updater.map
-del /q .\out\*.d
+del /q .\output\USBHIDBootloader_updater.map
+del /q .\output\*.d
