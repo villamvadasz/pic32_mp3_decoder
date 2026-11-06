@@ -2,6 +2,7 @@
 # Project: USBHIDBootloader.mcp
 # Date: Mon Feb 11 21:10:53 2019
 
+SHELL = cmd
 AS = xc32-as.exe
 CC = xc32-gcc.exe
 LD = xc32-ld.exe

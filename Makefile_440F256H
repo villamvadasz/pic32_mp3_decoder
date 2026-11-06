@@ -2,6 +2,7 @@
 # Project: pic_mp3_1_0_0.mcp
 # Date: Thu Jun 17 14:31:35 2021
 
+SHELL = cmd
 AS = xc32-as.exe
 CC = xc32-gcc.exe
 LD = xc32-ld.exe
